@@ -1,64 +1,102 @@
+// FRC Team 716 Basic Drive code
+// not reccomended for general use
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
 
-#include <fmt/core.h>
+#include <iostream>
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
 void Robot::RobotInit() {
-  m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
-  m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
+  m_chooser.SetDefaultOption(kAutoMobility, kAutoMobility);
+  m_chooser.AddOption(kAutoCharge, kAutoCharge);
+  m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+  compressor.Start();
 }
 
-/**
- * This function is called every 20 ms, no matter the mode. Use
- * this for items like diagnostics that you want ran during disabled,
- * autonomous, teleoperated and test.
- *
- * <p> This runs after the mode specific periodic functions, but before
- * LiveWindow and SmartDashboard integrated updating.
- */
 void Robot::RobotPeriodic() {}
 
-/**
- * This autonomous (along with the chooser code above) shows how to select
- * between different autonomous modes using the dashboard. The sendable chooser
- * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
- * remove all of the chooser code and uncomment the GetString line to get the
- * auto name from the text box below the Gyro.
- *
- * You can add additional auto modes by adding additional comparisons to the
- * if-else structure below with additional strings. If using the SendableChooser
- * make sure to add them to the chooser code above as well.
- */
+
 void Robot::AutonomousInit() {
   m_autoSelected = m_chooser.GetSelected();
   // m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
-  fmt::print("Auto selected: {}\n", m_autoSelected);
-
-  if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
-  }
+  std::cout << "Auto selected: " << m_autoSelected << std::endl;
+  if (m_autoselected == kAutoMobility) {automode=AutoMobility;}
+  leftDriveEncoder.Reset();
+  rightDriveEncoder.Reset();
 }
 
 void Robot::AutonomousPeriodic() {
-  if (m_autoSelected == kAutoNameCustom) {
-    // Custom Auto goes here
-  } else {
-    // Default Auto goes here
+  if (m_autoSelected == kAutoDriveForward && autoactive) {
+    if (DistanceDrive(1,AUTODIST, true) == DONE) autoactive = false;
   }
+  else drive.TankDrive(0,0,false); 
+
+  case AutoMobility:
 }
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+  leftDriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
+	rightDriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
+}
+void Robot::TeleopPeriodic() {
 
-void Robot::TeleopPeriodic() {}
+  if (rightDriveStick.GetTrigger()) HoldTheLine();
+  else if (leftDriveStick.GetTrigger()) StraightDrive();
+  else {
+    drive.TankDrive((leftDriveStick.GetY() * -1), (rightDriveStick.GetY() * -1));
+    sdfr = false;}
+  if (gamepad.GetBackButtonPressed()) Abort();
+  //Analog Controls
+  if (gamepad.GetRightTriggerAxis() > 0.1 || gamepad.GetLeftTriggerAxis() > 0.1){ // check deadzone
+    auxMotorController1.Set(gamepad.GetRightTriggerAxis()-gamepad.GetLeftTriggerAxis());} //left is reverse
+  if (fabs(gamepad.GetLeftY()) > 0.1 ){ // check deadzone
+    auxMotorController2.Set(gamepad.GetLeftY());} 
+  if (fabs(gamepad.GetRightY()) > 0.1 ){ // check deadzone
+    auxMotorController3.Set(gamepad.GetRightY());} 
+  if (gamepad.GetPOV() != -1) Lock();
+  else {
+    //Relays
+    if (gamepad.GetLeftBumper()) {
+      auxMotorController4.Set(AUXSPDCTL_SPD);
+      auxSpedCtrlr4DefState = 0;}
+    else auxMotorController4.Set(auxSpedCtrlr4DefState);
+    if (gamepad.GetRightBumper()) {
+      auxMotorController5.Set(AUXSPDCTL_SPD);
+      auxSpedCtrlr5DefState = 0;}
+    else auxMotorController5.Set(auxSpedCtrlr5DefState);
+    if (rightDriveStick.GetTop()) {
+      auxMotorController6.Set(AUXSPDCTL_SPD);
+      auxSpedCtrlr6DefState = 0;}
+    else auxMotorController6.Set(auxSpedCtrlr6DefState);
+    //Pneumatics
+    if (gamepad.GetXButton()) {
+      Pneumatic1.Set(Pneumatic1.kForward);
+      Pnm1DefState = frc::DoubleSolenoid::Value::kReverse;}
+    else Pneumatic1.Set(Pnm1DefState);
+    if (gamepad.GetYButton()) {
+      Pneumatic2.Set(Pneumatic2.kForward);
+      Pnm2DefState = frc::DoubleSolenoid::Value::kReverse;}
+    else Pneumatic2.Set(Pnm2DefState);
+    if (gamepad.GetBButton()) {
+      Pneumatic3.Set(Pneumatic3.kForward);
+      Pnm3DefState = frc::DoubleSolenoid::Value::kReverse;}
+    else Pneumatic3.Set(Pnm3DefState);
+    if (gamepad.GetAButton()) {
+      Pneumatic4.Set(Pneumatic4.kForward);
+      Pnm4DefState = frc::DoubleSolenoid::Value::kReverse;}
+    else Pneumatic4.Set(Pnm4DefState);
+  }
+
+//Motor A
+    
+     liftEncoder.reset(); 
+}
 
 void Robot::DisabledInit() {}
 
@@ -68,9 +106,150 @@ void Robot::TestInit() {}
 
 void Robot::TestPeriodic() {}
 
-void Robot::SimulationInit() {}
+void Robot::StraightDrive(){
+  if (!sdfr){
+    leftDriveEncoder.Reset();
+    rightDriveEncoder.Reset();
+    sdfr = true;
+  }
+  double throttle = (-1 *leftDriveStick.GetY());
+  double difference = (-1 * rightDriveEncoder.GetDistance()) - (leftDriveEncoder.GetDistance());
+  drive.TankDrive((throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
+  }
 
-void Robot::SimulationPeriodic() {}
+//Should keep the robot from moving, never tested it
+void Robot::HoldTheLine(){
+  std::cout << "Love isn't always on time" << std::endl; // No I am not ashamed of this TOTO reference
+    if (!sdfr){
+    leftDriveEncoder.Reset();
+    rightDriveEncoder.Reset();
+    sdfr = true;
+  }
+  drive.TankDrive((0.25 * leftDriveEncoder.GetDistance()),(-0.25 * rightDriveEncoder.GetDistance()), false);
+}
+
+void Robot::Abort(){
+  auxMotorController1.StopMotor();
+  auxMotorController2.StopMotor();
+  auxMotorController3.StopMotor();
+  auxMotorController4.StopMotor();
+  auxMotorController5.StopMotor();
+  auxMotorController6.StopMotor();
+  Pneumatic1.Set(frc::DoubleSolenoid::Value::kReverse);
+  Pneumatic2.Set(frc::DoubleSolenoid::Value::kReverse);
+  Pneumatic3.Set(frc::DoubleSolenoid::Value::kReverse);
+  Pneumatic4.Set(frc::DoubleSolenoid::Value::kReverse);
+  auxSpedCtrlr4DefState = 0;
+  auxSpedCtrlr5DefState = 0;
+  auxSpedCtrlr6DefState = 0;
+  Pnm1DefState = frc::DoubleSolenoid::Value::kReverse;
+  Pnm2DefState = frc::DoubleSolenoid::Value::kReverse;
+  Pnm3DefState = frc::DoubleSolenoid::Value::kReverse;
+  Pnm4DefState = frc::DoubleSolenoid::Value::kReverse;
+}
+
+void Robot::Lock(){
+  if (gamepad.GetLeftBumper()) auxSpedCtrlr4DefState = AUXSPDCTL_SPD;
+  if (gamepad.GetRightBumper()) auxSpedCtrlr5DefState = AUXSPDCTL_SPD;
+  if (rightDriveStick.GetTop()) auxSpedCtrlr6DefState = AUXSPDCTL_SPD;
+  if (gamepad.GetXButton()) Pnm1DefState = frc::DoubleSolenoid::Value::kForward;
+  if (gamepad.GetYButton()) Pnm2DefState = frc::DoubleSolenoid::Value::kForward;
+  if (gamepad.GetBButton()) Pnm3DefState = frc::DoubleSolenoid::Value::kForward;
+  if (gamepad.GetAButton()) Pnm4DefState = frc::DoubleSolenoid::Value::kForward;
+}
+
+int Robot::DistanceDrive (float speed, float distance, bool brake)
+{
+	static bool FirstCallFlag = true; // FirstCallFlag should always be set to true when returning DONE
+	static float autoStartSpeed;
+  static float direction;
+	static double lastDistance, speedUpDistance, slowDownDistance;
+  static int sameCounter;
+  static bool brakingFlag;
+  static double brakeStartTime; 
+
+	float newSpeed;
+	double curDistance;
+
+  if (FirstCallFlag) {
+    // Setup distance drive on first call
+    // Set initial values for static variables
+    brakingFlag = false;
+    FirstCallFlag = false;
+    if (speed < 0) {
+      direction = -1;
+    } else {
+      direction = 1;
+
+    }
+    autoStartSpeed = direction * AUTOSTARTSPEED;
+    if (distance < (DRIVERAMPUPDISTANCE * 2)) {
+	    speedUpDistance = distance / 2;
+	    slowDownDistance = speedUpDistance;
+    } else {
+	    speedUpDistance = DRIVERAMPUPDISTANCE;
+     	slowDownDistance = distance - DRIVERAMPUPDISTANCE;
+    }
+	  frc::SmartDashboard::PutNumber(  "DistanceDrive Distance", distance);
+  	lastDistance = 0;
+    sameCounter = 0;
+    leftDriveEncoder.Reset();
+  }
+
+ 	if (brakingFlag) {
+     // Braking flag gets set once we reach targe distance if the brake parameter
+     // was specified. Drive in reverse direction at low speed for short duration.
+    if ((AutoTimer.Get() - brakeStartTime) < .2) {
+    	drive.TankDrive(-0.2 * direction *FORWARD, -0.2 * direction * FORWARD);
+      return NOTDONEYET;
+    } else {
+      drive.TankDrive(0, 0);
+      brakingFlag = false;
+      FirstCallFlag = true;
+      return DONE;
+    }
+	}
+  
+	curDistance = abs(leftDriveEncoder.GetDistance());
+
+	if (curDistance == lastDistance) {
+		if (sameCounter++ == 50) {
+				return ERROR;
+		}
+	} else {
+		sameCounter = 0;
+		lastDistance = curDistance;
+	}
+
+	if (curDistance < speedUpDistance) {
+		newSpeed = autoStartSpeed + ((speed - autoStartSpeed) * curDistance)/DRIVERAMPUPDISTANCE;
+	} else if ((curDistance > slowDownDistance) && (brake == true)) {
+		newSpeed = speed * (distance-curDistance)/DRIVERAMPUPDISTANCE;
+	} else {
+		newSpeed = speed;
+	}
+
+	drive.CurvatureDrive(newSpeed * (AUTOFORWARD), 0, false);
+	curDistance = abs(leftDriveEncoder.GetDistance());
+  if (curDistance < distance) {
+    return NOTDONEYET;
+  } else {
+    if (brake) {
+      brakingFlag = true;
+      brakeStartTime = AutoTimer.Get();
+      return NOTDONEYET;
+    } else {
+      FirstCallFlag = true;
+      drive.TankDrive(0, 0);
+      return DONE;
+    }
+  }
+  
+  // should never get here
+  drive.TankDrive(0, 0);
+  FirstCallFlag = true;
+  return DONE;
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
