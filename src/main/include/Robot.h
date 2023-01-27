@@ -14,8 +14,8 @@
 #include <frc/DoubleSolenoid.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/XboxController.h>
-#include <frc/MotorControllerGroup.h>
-#include <frc/VictorSP.h>
+#include <frc/motorcontrol/MotorControllerGroup.h>
+#include <frc/motorcontrol/VictorSP.h>
 #include <frc/Relay.h>
 #include <frc/Servo.h>
 #include <frc/DoubleSolenoid.h>
@@ -24,39 +24,42 @@
 #include <frc/DriverStation.h>
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
+#include <units/time.h>
 class Robot : public frc::TimedRobot {
   //Input Devices:
-  frc::Joystick leftDriveStick{0};
-  frc::Joystick rightDriveStick{1};
+  frc::Joystick leftdrivestick{0};
+  frc::Joystick rightdrivestick{1};
   frc::XboxController gamepad{2};
   //Drive motors
-  frc::VictorSP lDrive0{0};
-  frc::VictorSP lDrive1{1};
-  frc::VictorSP rDrive2{2};
-  frc::VictorSP rDrive{3};
-  frc::MotorControllerGroup lDrive{lDrive0, lDrive1};
-  frc::MotorControllerGroup rDrive{rDrive0, rDrive1};
+  frc::VictorSP ldrive0{0};
+  frc::VictorSP ldrive1{1};
+  frc::VictorSP rdrive0{2};
+  frc::VictorSP rdrive1{3};
+  frc::MotorControllerGroup lDrive{ldrive0, ldrive1};
+  frc::MotorControllerGroup rDrive{rdrive0, rdrive1};
   frc::DifferentialDrive drive{lDrive, rDrive};
   //Effectors
   frc::Compressor compressor;
-  frc::VictorSP Lift1Motor4{4};
-  frc::VictorSP WheelsMotor5{5};
-  frc::VictorSP WheelsMotor6{6};
-  frc::VictorSP ConeWheelMotor7{7};
+  frc::VictorSP lift1motor{4};
+  frc::VictorSP lwheelmotor{5};
+  frc::VictorSP rwheelmotor{6};
+  frc::VictorSP conewheelmotor{7};
   //frc::VictorSP auxMotorController5{8};
   //frc::VictorSP auxMotorController6{9};
-  frc::DoubleSolenoid Lift2Pneumatic{0,1};
-  frc::DoubleSolenoid ClampPneumatic{2,3};
-  frc::DoubleSolenoid AlignArmsPneumatic{4,5};
-  frc::DoubleSolenoid BrakePneumatic{6,7};
+  frc::DoubleSolenoid lift2{frc::PneumaticsModuleType::CTREPCM, 0, 1,};
+  frc::DoubleSolenoid clamp{frc::PneumaticsModuleType::CTREPCM, 2, 3,};
+  frc::DoubleSolenoid alignarms{frc::PneumaticsModuleType::CTREPCM, 4, 5,};
+  frc::DoubleSolenoid brake{frc::PneumaticsModuleType::CTREPCM, 6, 7,};
   //Encoders
-	frc::Encoder leftDriveEncoder{0,1,false,frc::Encoder::k4X};
-	frc::Encoder rightDriveEncoder{2,3,false,frc::Encoder::k4X};
+	frc::Encoder leftdriveEncoder{0,1,false,frc::Encoder::k4X};
+	frc::Encoder rightdriveEncoder{2,3,false,frc::Encoder::k4X};
   frc::Encoder lift1Encoder{4,5};
   //Global Vars
   frc::Timer AutoTimer;
   bool sdfr = false;
   bool autoactive = true;
+  enum autoModeTypes {AutoMobility, AutoCharge, AutoDoNothing,} autoMode;
+  int AutoStage = 0;
   //Digital Inputs
   frc::DigitalInput LiftSwitch {6}; 
   //Default States
@@ -87,7 +90,7 @@ class Robot : public frc::TimedRobot {
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobility = "Score + Back out";
-  const std::string kAutoCharge = "Score + Charge"
+  const std::string kAutoCharge = "Score + Charge";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;
 };
