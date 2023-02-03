@@ -11,7 +11,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 void Robot::RobotInit() {
-  m_chooser.SetDefaultOption(kAutoMobility, kAutoMobility);
+  m_chooser.SetDefaultOption(kAutoMobilityCone, kAutoMobilityCone);
   m_chooser.AddOption(kAutoCharge, kAutoCharge);
   m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
@@ -26,7 +26,7 @@ void Robot::AutonomousInit() {
   // m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
   std::cout << "Auto selected: " << m_autoSelected << std::endl;
-  if ( m_autoSelected == kAutoMobility) {autoMode = AutoMobility;}
+  if ( m_autoSelected == kAutoMobilityCone) {autoMode = AutoMobilityCone;}
   else if ( m_autoSelected == kAutoCharge) {autoMode = AutoCharge;}
   else autoMode = AutoDoNothing;
   leftdriveEncoder.Reset();
@@ -34,21 +34,84 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-  if (m_autoSelected == kAutoMobility && autoactive) {
+  if (m_autoSelected == kAutoMobilityCone && autoactive) {
     if (DistanceDrive(.7,AUTODIST, true) == DONE) autoactive = false;
   }
   else drive.TankDrive(0,0,false); 
 
 switch (autoMode) {
 
-case AutoMobility:
-switch (autoMode) {
-  
+
+//Auto Mobility (Cone)
+case AutoMobilityCone:
+switch (AutoStage) {
+
+case 0:
+
+if(lift1Encoder.GetDistance() < 60) {
+lift1motor.Set(.5);
+}
+else if(lift1Encoder.GetDistance() >= 60) {
+  lift1motor.Set(0);
+  AutoStage = 1;
+  }
+else {lift1motor.Set(0);}
+break;
+
+case 1:
+
+if(lift2.Get() == lift2.kReverse) {
+  lift2.Set(lift2.kForward);
+}
+else {lift2.Set(lift2.kOff);}
+
+if(lift2.Get() == lift2.kForward) {
+  AutoStage = 2;
+}
+break;
+
+case 2:
+if(clamp.Get() == clamp.kForward) {
+  clamp.Set(clamp.kReverse);
+}
+else {clamp.Set(clamp.kOff);}
+
+if(clamp.Get() == clamp.kReverse) {
+  AutoStage = 3;
+
+}
+break;
+
+case 3:
+if(lift2.Get() == lift2.kForward) {
+  lift2.Set(lift2.kReverse);
+}
+else {lift2.Set(lift2.kOff);}
+
+if(lift2.Get() == lift2.kReverse) {
+  AutoStage = 4;
+}
+break;
+
+case 4:
+if(LiftSwitch.Get() == true) {
+  lift1motor.Set(0);
+  lift1Encoder.Reset();
+  AutoStage = 5;
+}
+else {lift1motor.Set(-.5);}
+break;
+
+case 5:
+
 }
 }
 
 
 }
+
+
+
 
 void Robot::TeleopInit() {
   leftdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
@@ -58,8 +121,8 @@ void Robot::TeleopPeriodic() {
 
 
 //Drive Modes
-  if (rightdrivestick.GetTrigger()) HoldTheLine();
-  else if (leftdrivestick.GetTrigger()) StraightDrive();
+  if(rightdrivestick.GetTrigger()) HoldTheLine();
+  else if(leftdrivestick.GetTrigger()) StraightDrive();
   else {
     drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * -1));
     sdfr = false;}
@@ -137,6 +200,13 @@ void Robot::TeleopPeriodic() {
   else {brake.Set(brake.kOff);}
 
 
+  //Set Modes
+
+  //Inside Frame
+
+ 
+
+
   //Analog Controls
   if (gamepad.GetRightTriggerAxis() > 0.1 || gamepad.GetLeftTriggerAxis() > 0.1){ // check deadzone
     lift1motor.Set(gamepad.GetRightTriggerAxis()-gamepad.GetLeftTriggerAxis());} //left is reverse
@@ -201,7 +271,7 @@ void Robot::HoldTheLine(){
     rightdriveEncoder.Reset();
     sdfr = true;
   }
-  drive.TankDrive((0.25 * leftdriveEncoder.GetDistance()),(-0.25 * rightdriveEncoder.GetDistance()), false);
+  drive.TankDrive((0.05 * leftdriveEncoder.GetDistance()),(0.05 * rightdriveEncoder.GetDistance()), false);;
 }
 
 void Robot::Abort(){
@@ -257,7 +327,7 @@ int Robot::DistanceDrive (float speed, float distance, bool brake)
 
     }
     autoStartSpeed = direction * AUTOSTARTSPEED;
-    if (distance < (DRIVERAMPUPDISTANCE * 2)) {
+    if(distance < (DRIVERAMPUPDISTANCE * 2)) {
 	    speedUpDistance = distance / 2;
 	    slowDownDistance = speedUpDistance;
     } else {

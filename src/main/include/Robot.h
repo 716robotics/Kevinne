@@ -53,12 +53,12 @@ class Robot : public frc::TimedRobot {
   //Encoders
 	frc::Encoder leftdriveEncoder{0,1,false,frc::Encoder::k4X};
 	frc::Encoder rightdriveEncoder{2,3,false,frc::Encoder::k4X};
-  frc::Encoder lift1Encoder{4,5};
+  frc::Encoder lift1Encoder{4,5,false,frc::Encoder::k4X};
   //Global Vars
   frc::Timer AutoTimer;
   bool sdfr = false;
   bool autoactive = true;
-  enum autoModeTypes {AutoMobility, AutoCharge, AutoDoNothing,} autoMode;
+  enum autoModeTypes {AutoMobilityCone, AutoCharge, AutoMobilityCone, AutoDoNothing,} autoMode;
   int AutoStage = 0;
   //Digital Inputs
   frc::DigitalInput LiftSwitch {6}; 
@@ -89,7 +89,7 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoMobility = "Score + Back out";
+  const std::string kAutoMobilityCone = "Score + Back out";
   const std::string kAutoCharge = "Score + Charge";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;
