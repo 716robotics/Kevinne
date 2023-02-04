@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 //Approximate distance for auto to drive forward in inches
-#define AUTODIST 500
+
 
 #pragma once
 #include <tunables.h>
@@ -24,7 +24,7 @@
 #include <frc/DriverStation.h>
 #include <frc/Encoder.h>
 #include <frc/DigitalInput.h>
-#include <units/time.h>
+
 class Robot : public frc::TimedRobot {
   //Input Devices:
   frc::Joystick leftdrivestick{0};
@@ -58,7 +58,7 @@ class Robot : public frc::TimedRobot {
   frc::Timer AutoTimer;
   bool sdfr = false;
   bool autoactive = true;
-  enum autoModeTypes {AutoMobilityCone, AutoCharge, AutoMobilityCone, AutoDoNothing,} autoMode;
+  enum autoModeTypes {AutoMobilityCone, AutoCharge, AutoMobilityCube, AutoDoNothing,} autoMode;
   int AutoStage = 0;
   //Digital Inputs
   frc::DigitalInput LiftSwitch {6}; 
@@ -89,7 +89,8 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoMobilityCone = "Score + Back out";
+  const std::string kAutoMobilityCone = "Score Cone + Back out";
+  const std::string kAutoMobilityCube = "Score Cube + Back out";
   const std::string kAutoCharge = "Score + Charge";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;

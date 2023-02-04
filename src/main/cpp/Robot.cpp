@@ -103,11 +103,25 @@ else {lift1motor.Set(-.5);}
 break;
 
 case 5:
+break;
+}
+
+break;
+
+case AutoMobilityCube:{
 
 }
+break;
+case AutoCharge:{
+
 }
+break;
 
-
+case AutoDoNothing: {
+  
+}
+break;
+}
 }
 
 
