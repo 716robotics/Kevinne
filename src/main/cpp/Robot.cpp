@@ -357,7 +357,7 @@ int Robot::DistanceDrive (float speed, float distance, bool brake)
  	if (brakingFlag) {
      // Braking flag gets set once we reach targe distance if the brake parameter
      // was specified. Drive in reverse direction at low speed for short duration.
-    if ((AutoTimer.Get() - brakeStartTime) < .2) {
+    if (((double)AutoTimer.Get() - brakeStartTime) < .2) {
     	drive.TankDrive(-0.2 * direction *FORWARD, -0.2 * direction * FORWARD);
       return NOTDONEYET;
     } else {
@@ -394,7 +394,7 @@ int Robot::DistanceDrive (float speed, float distance, bool brake)
   } else {
     if (brake) {
       brakingFlag = true;
-      brakeStartTime = (float)AutoTimer.Get();
+      brakeStartTime = (double)AutoTimer.Get();
       return NOTDONEYET;
     } else {
       FirstCallFlag = true;

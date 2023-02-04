@@ -39,7 +39,7 @@ class Robot : public frc::TimedRobot {
   frc::MotorControllerGroup rDrive{rdrive0, rdrive1};
   frc::DifferentialDrive drive{lDrive, rDrive};
   //Effectors
-  frc::Compressor compressor;
+  frc::Compressor compressor{frc::PneumaticsModuleType::CTREPCM};
   frc::VictorSP lift1motor{4};
   frc::VictorSP lwheelmotor{5};
   frc::VictorSP rwheelmotor{6};
