@@ -16,6 +16,7 @@ void Robot::RobotInit() {
   m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   compressor.EnableDigital();
+
 }
 
 void Robot::RobotPeriodic() {}
@@ -48,10 +49,10 @@ switch (AutoStage) {
 
 case 0:
 
-if(lift1Encoder.GetDistance() < 60) {
+if(lift1Encoder.GetDistance() < 22) {
 lift1motor.Set(.5);
 }
-else if(lift1Encoder.GetDistance() >= 60) {
+else if(lift1Encoder.GetDistance() >= 22) {
   lift1motor.Set(0);
   AutoStage = 1;
   }
@@ -130,21 +131,48 @@ break;
 void Robot::TeleopInit() {
   leftdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
 	rightdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
+  lift1Encoder.SetDistancePerPulse(1./128.);
 }
 void Robot::TeleopPeriodic() {
+//Encoder call
+  frc::SmartDashboard::PutNumber("Lift Encoder", lift1Encoder.GetDistance());
+  frc::SmartDashboard::PutNumber("Left Wheel Output", m_pdp.GetCurrent() );  
 
+//Limit Switch
+if(LiftSwitch.Get()) {
+  lift1Encoder.Reset();
+}
+if(LiftSwitch.Get()) {
+  lift1motor.Set(0);
+if(gamepad.GetLeftY() > .3) {
+    lift1motor.Set(gamepad.GetLeftY());
 
+}
+else if(gamepad.GetLeftY() < -.3) {
+    lift1motor.Set(0);
+}
+else {lift1motor.Set(0);}
+}
 //Drive Modes
   if(rightdrivestick.GetTrigger()) HoldTheLine();
   else if(leftdrivestick.GetTrigger()) StraightDrive();
   else {
-    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * -1));
+    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1));
     sdfr = false;}
   if (gamepad.GetBackButtonPressed()) Abort();
 
 
 //Arm 1
-  if(fabs(gamepad.GetLeftY()) > .3) {
+  if(lift1Encoder.GetDistance() >= 22) {
+   if(gamepad.GetLeftY() > .3) {
+    lift1motor.Set(0);
+   }
+   else if(gamepad.GetLeftY() < -.3) {
+    lift1motor.Set(gamepad.GetLeftY());
+   }
+   else {lift1motor.Set(0);}
+  }
+  else if(fabs(gamepad.GetLeftY()) > .3) {
     lift1motor.Set(gamepad.GetLeftY());
     }
   else {lift1motor.Set(0);}
@@ -196,65 +224,35 @@ void Robot::TeleopPeriodic() {
 
 
 //Alignment Arms
-  if(leftdrivestick.GetRawButton(1)) {
+  if(leftdrivestick.GetRawButton(2)) {
     alignarms.Set(alignarms.kForward);
   }
-  else if(rightdrivestick.GetRawButton(1)) {
+  else if(rightdrivestick.GetRawButton(2)) {
     alignarms.Set(alignarms.kReverse);
   }
   else {alignarms.Set(alignarms.kOff);}
 
 //Brake
-  if(leftdrivestick.GetRawButton(2)) {
+  if(leftdrivestick.GetRawButton(3)) {
     brake.Set(brake.kForward);
   }
-  else if(rightdrivestick.GetRawButton(2)) {
+  else if(rightdrivestick.GetRawButton(3)) {
     brake.Set(brake.kReverse);
   }
   else {brake.Set(brake.kOff);}
 
 
-  //Set Modes
+  
 
-  //Inside Frame
+  
 
  
 
 
-  //Analog Controls
-  if (gamepad.GetRightTriggerAxis() > 0.1 || gamepad.GetLeftTriggerAxis() > 0.1){ // check deadzone
-    lift1motor.Set(gamepad.GetRightTriggerAxis()-gamepad.GetLeftTriggerAxis());} //left is reverse
-  if (fabs(gamepad.GetLeftY()) > 0.1 ){ // check deadzone
-    lwheelmotor.Set(gamepad.GetLeftY());} 
-  if (fabs(gamepad.GetRightY()) > 0.1 ){ // check deadzone
-    rwheelmotor.Set(gamepad.GetRightY());} 
-  if (gamepad.GetPOV() != -1) Lock();
-  else {
-    //Relays
-    if (gamepad.GetLeftBumper()) {
-      conewheelmotor.Set(AUXSPDCTL_SPD);
-      auxSpedCtrlr4DefState = 0;}
-    else conewheelmotor.Set(auxSpedCtrlr4DefState);}
-    //Pneumatics
-    if (gamepad.GetXButton()) {
-      lift2.Set(lift2.kForward);
-      Pnm1DefState = frc::DoubleSolenoid::Value::kReverse;}
-    else lift2.Set(Pnm1DefState);
-    if (gamepad.GetYButton()) {
-      clamp.Set(clamp.kForward);
-      Pnm2DefState = frc::DoubleSolenoid::Value::kReverse;}
-    else clamp.Set(Pnm2DefState);
-    if (gamepad.GetBButton()) {
-      alignarms.Set(alignarms.kForward);
-      Pnm3DefState = frc::DoubleSolenoid::Value::kReverse;}
-    else alignarms.Set(Pnm3DefState);
-    if (gamepad.GetAButton()) {
-      brake.Set(brake.kForward);
-      Pnm4DefState = frc::DoubleSolenoid::Value::kReverse;}
-    else brake.Set(Pnm4DefState);
+
   }
 
-//Motor A
+
     
 
 
