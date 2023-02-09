@@ -65,7 +65,7 @@ class Robot : public frc::TimedRobot {
   enum autoModeTypes {AutoMobilityCone, AutoCharge, AutoMobilityCube, AutoDoNothing,} autoMode;
   int AutoStage = 0;
   //Digital Inputs
-  frc::DigitalInput LiftSwitch {6}; 
+  frc::DigitalInput LiftSwitch {9}; 
   //Default States
   float auxSpedCtrlr4DefState = 0;
   float auxSpedCtrlr5DefState = 0;

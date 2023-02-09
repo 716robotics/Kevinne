@@ -136,23 +136,22 @@ void Robot::TeleopInit() {
 void Robot::TeleopPeriodic() {
 //Encoder call
   frc::SmartDashboard::PutNumber("Lift Encoder", lift1Encoder.GetDistance());
-  frc::SmartDashboard::PutNumber("Left Wheel Output", m_pdp.GetCurrent() );  
+  frc::SmartDashboard::PutNumber("Left Wheel Output", lwheelpower.GetCurrent(5) );  
+  frc::SmartDashboard::PutNumber("Right Wheel Output", rwheelpower.GetCurrent(6) );
+  frc::SmartDashboard::PutNumber("Cone Wheel Output", conewheelpower.GetCurrent(7) );
 
 //Limit Switch
-if(LiftSwitch.Get()) {
-  lift1Encoder.Reset();
-}
-if(LiftSwitch.Get()) {
-  lift1motor.Set(0);
-if(gamepad.GetLeftY() > .3) {
-    lift1motor.Set(gamepad.GetLeftY());
 
-}
-else if(gamepad.GetLeftY() < -.3) {
-    lift1motor.Set(0);
-}
-else {lift1motor.Set(0);}
-}
+  //if((gamepad.GetLeftY() >.3)
+   // lift1motor.Set(0)
+
+//if (LiftSwitch.Get()){
+    //lift1Encoder.Reset();
+
+//if (gamepad.GetLeftY() <-.3)
+
+//}
+
 //Drive Modes
   if(rightdrivestick.GetTrigger()) HoldTheLine();
   else if(leftdrivestick.GetTrigger()) StraightDrive();
@@ -163,17 +162,18 @@ else {lift1motor.Set(0);}
 
 
 //Arm 1
-  if(lift1Encoder.GetDistance() >= 22) {
-   if(gamepad.GetLeftY() > .3) {
+  if(lift1Encoder.GetDistance() <= -48) {
+   if(gamepad.GetLeftY() < -.3) {
     lift1motor.Set(0);
    }
-   else if(gamepad.GetLeftY() < -.3) {
-    lift1motor.Set(gamepad.GetLeftY());
+   else if(gamepad.GetLeftY() > .3){
+   if(LiftSwitch.Get());
+    lift1motor.Set(gamepad.GetLeftY() * .5);
    }
    else {lift1motor.Set(0);}
   }
   else if(fabs(gamepad.GetLeftY()) > .3) {
-    lift1motor.Set(gamepad.GetLeftY());
+    lift1motor.Set(gamepad.GetLeftY() * .5);
     }
   else {lift1motor.Set(0);}
 
