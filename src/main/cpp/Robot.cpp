@@ -146,14 +146,19 @@ void Robot::TeleopPeriodic() {
 
 //Limit Switch
 
-//  if(gamepad.GetLeftY() >.3) 
-//    lift1motor.Set(0);
+if(LiftSwitch.Get()) {
+  lift1Encoder.Reset();
 
-if (LiftSwitch.Get()){
-    lift1Encoder.Reset();
+ if(gamepad.GetLeftY() < .3) {
+    lift1motor.Set(0);}
 
-//if (gamepad.GetLeftY() <-.3)
+else if(gamepad.GetLeftY() > .3) {
+    lift1motor.Set(gamepad.GetLeftY());
 
+}
+
+
+else {lift1motor.Set(0);}
 }
 
 //Drive Modes
@@ -166,18 +171,17 @@ if (LiftSwitch.Get()){
 
 
 //Arm 1
-  if(lift1Encoder.GetDistance() <= -48) {
-   if(gamepad.GetLeftY() < -.3) {
+ if(lift1Encoder.GetDistance() >= 22) {
+   if(gamepad.GetLeftY() > .3) {
     lift1motor.Set(0);
    }
-   else if(gamepad.GetLeftY() > .3){
-   if(LiftSwitch.Get());
-    lift1motor.Set(gamepad.GetLeftY() * .5);
+   else if(gamepad.GetLeftY() < -.3) {
+    lift1motor.Set(gamepad.GetLeftY());
    }
    else {lift1motor.Set(0);}
   }
   else if(fabs(gamepad.GetLeftY()) > .3) {
-    lift1motor.Set(gamepad.GetLeftY() * .5);
+    lift1motor.Set(gamepad.GetLeftY());
     }
   else {lift1motor.Set(0);}
 
