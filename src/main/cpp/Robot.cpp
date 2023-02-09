@@ -19,7 +19,14 @@ void Robot::RobotInit() {
 
 }
 
-void Robot::RobotPeriodic() {}
+void Robot::RobotPeriodic() {
+
+  frc::SmartDashboard::PutNumber("Lift Encoder", lift1Encoder.GetDistance());
+  frc::SmartDashboard::PutNumber("Left Wheel Output", power.GetCurrent(5) );  
+  frc::SmartDashboard::PutNumber("Right Wheel Output", power.GetCurrent(6) );
+  frc::SmartDashboard::PutNumber("Cone Wheel Output", power.GetCurrent(7) ); 
+  frc::SmartDashboard::PutBoolean("Limit Swith Value", LiftSwitch.Get());
+}
 
 
 void Robot::AutonomousInit() {
@@ -49,10 +56,10 @@ switch (AutoStage) {
 
 case 0:
 
-if(lift1Encoder.GetDistance() < 22) {
+if(lift1Encoder.GetDistance() < 48) {
 lift1motor.Set(.5);
 }
-else if(lift1Encoder.GetDistance() >= 22) {
+else if(lift1Encoder.GetDistance() >= 48) {
   lift1motor.Set(0);
   AutoStage = 1;
   }
@@ -135,22 +142,19 @@ void Robot::TeleopInit() {
 }
 void Robot::TeleopPeriodic() {
 //Encoder call
-  frc::SmartDashboard::PutNumber("Lift Encoder", lift1Encoder.GetDistance());
-  frc::SmartDashboard::PutNumber("Left Wheel Output", lwheelpower.GetCurrent(5) );  
-  frc::SmartDashboard::PutNumber("Right Wheel Output", rwheelpower.GetCurrent(6) );
-  frc::SmartDashboard::PutNumber("Cone Wheel Output", conewheelpower.GetCurrent(7) );
+
 
 //Limit Switch
 
-  //if((gamepad.GetLeftY() >.3)
-   // lift1motor.Set(0)
+//  if(gamepad.GetLeftY() >.3) 
+//    lift1motor.Set(0);
 
-//if (LiftSwitch.Get()){
-    //lift1Encoder.Reset();
+if (LiftSwitch.Get()){
+    lift1Encoder.Reset();
 
 //if (gamepad.GetLeftY() <-.3)
 
-//}
+}
 
 //Drive Modes
   if(rightdrivestick.GetTrigger()) HoldTheLine();

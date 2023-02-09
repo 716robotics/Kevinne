@@ -45,9 +45,7 @@ class Robot : public frc::TimedRobot {
   frc::VictorSP lwheelmotor{5};
   frc::VictorSP rwheelmotor{6};
   frc::VictorSP conewheelmotor{7};
-  frc::PowerDistribution lwheelpower{5, frc::PowerDistribution::ModuleType::kCTRE};
-  frc::PowerDistribution rwheelpower{6, frc::PowerDistribution::ModuleType::kCTRE};
-  frc::PowerDistribution conewheelpower{7, frc::PowerDistribution::ModuleType::kCTRE};
+  frc::PowerDistribution power{0, frc::PowerDistribution::ModuleType::kCTRE};
   //frc::VictorSP auxMotorController5{8};
   //frc::VictorSP auxMotorController6{9};
   frc::DoubleSolenoid lift2{frc::PneumaticsModuleType::CTREPCM, 0, 1,};
