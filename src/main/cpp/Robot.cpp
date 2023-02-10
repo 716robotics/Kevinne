@@ -26,6 +26,10 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Right Wheel Output", power.GetCurrent(6) );
   frc::SmartDashboard::PutNumber("Cone Wheel Output", power.GetCurrent(7) ); 
   frc::SmartDashboard::PutBoolean("Limit Swith Value", LiftSwitch.Get());
+  
+  if(LiftSwitch.Get()) {
+  lift1Encoder.Reset();
+  }
 }
 
 
@@ -141,25 +145,7 @@ void Robot::TeleopInit() {
   lift1Encoder.SetDistancePerPulse(1./128.);
 }
 void Robot::TeleopPeriodic() {
-//Encoder call
 
-
-//Limit Switch
-
-if(LiftSwitch.Get()) {
-  lift1Encoder.Reset();
-
- if(gamepad.GetLeftY() < .3) {
-    lift1motor.Set(0);}
-
-else if(gamepad.GetLeftY() > .3) {
-    lift1motor.Set(gamepad.GetLeftY());
-
-}
-
-
-else {lift1motor.Set(0);}
-}
 
 //Drive Modes
   if(rightdrivestick.GetTrigger()) HoldTheLine();
@@ -170,21 +156,20 @@ else {lift1motor.Set(0);}
   if (gamepad.GetBackButtonPressed()) Abort();
 
 
-//Arm 1
- if(lift1Encoder.GetDistance() >= 22) {
-   if(gamepad.GetLeftY() > .3) {
-    lift1motor.Set(0);
-   }
-   else if(gamepad.GetLeftY() < -.3) {
-    lift1motor.Set(gamepad.GetLeftY());
-   }
-   else {lift1motor.Set(0);}
-  }
-  else if(fabs(gamepad.GetLeftY()) > .3) {
-    lift1motor.Set(gamepad.GetLeftY());
-    }
-  else {lift1motor.Set(0);}
-
+//Arm 1 + Limits
+if(gamepad.GetLeftY() > .3 && LiftSwitch.Get()) {
+  lift1motor.Set(0);
+}
+else if(gamepad.GetLeftY() > .3 && !LiftSwitch.Get()) {
+  lift1motor.Set(.3);
+}
+else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+}
+else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() > -75) {
+lift1motor.Set(gamepad.GetLeftY());
+}
+else{lift1motor.Set(0);}
 
 //Cube Wheels
   if(gamepad.GetLeftTriggerAxis() > .5) {
