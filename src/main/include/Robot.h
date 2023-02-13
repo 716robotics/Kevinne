@@ -60,7 +60,7 @@ class Robot : public frc::TimedRobot {
   frc::Timer AutoTimer;
   bool sdfr = false;
   bool autoactive = true;
-  enum autoModeTypes {AutoMobilityCone, AutoCharge, AutoMobilityCube, AutoDoNothing,} autoMode;
+  enum autoModeTypes {AutoMobilityCone, AutoChargeCone, AutoMobilityCube, AutoChargeCube, AutoForward, AutoDoNothing,} autoMode;
   int AutoStage = 0;
   //Digital Inputs
   frc::DigitalInput LiftSwitch {9}; 
@@ -88,12 +88,15 @@ class Robot : public frc::TimedRobot {
   void Abort();
   void Lock();
   int DistanceDrive(float,float,bool);
+  float m_autodistance;
 
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobilityCone = "Score Cone + Back out";
   const std::string kAutoMobilityCube = "Score Cube + Back out";
-  const std::string kAutoCharge = "Score + Charge";
+  const std::string kAutoChargeCone = "Score Cone + Charge";
+  const std::string kAutoChargeCube = "Score Cone + Charge";
+  const std::string kAutoForward = "Drive Forward";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;
 };

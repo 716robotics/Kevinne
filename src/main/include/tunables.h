@@ -22,9 +22,9 @@
 #define AUTOPICKUPSTARTTIME 0
 
 //#define ROBOTDISTANCEPERPULSE 0.05333333
-#define ROBOTDISTANCEPERPULSE 0.024
+#define ROBOTDISTANCEPERPULSE 0.0179
 // value to add to curvature correction to drive straight
 #define AUTOCURVECOMP -0.066667
 
 //Approximate distance for auto to drive forward in inches
-#define AUTODIST 100
+#define AUTODIST 180
