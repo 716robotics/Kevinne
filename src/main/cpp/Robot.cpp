@@ -12,7 +12,10 @@
 
 void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoMobilityCone, kAutoMobilityCone);
-  m_chooser.AddOption(kAutoCharge, kAutoCharge);
+  m_chooser.AddOption(kAutoMobilityCone, kAutoMobilityCone);
+  m_chooser.AddOption(kAutoChargeCone, kAutoChargeCone);
+  m_chooser.AddOption(kAutoChargeCube, kAutoChargeCube); 
+  m_chooser.AddOption(kAutoForward, kAutoForward); 
   m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   compressor.EnableDigital();
@@ -22,11 +25,12 @@ void Robot::RobotInit() {
 void Robot::RobotPeriodic() {
 
   frc::SmartDashboard::PutNumber("Lift Encoder", lift1Encoder.GetDistance());
-  frc::SmartDashboard::PutNumber("Left Wheel Output", power.GetCurrent(5) );  
+  /*frc::SmartDashboard::PutNumber("Left Wheel Output", power.GetCurrent(5) );  
   frc::SmartDashboard::PutNumber("Right Wheel Output", power.GetCurrent(6) );
-  frc::SmartDashboard::PutNumber("Cone Wheel Output", power.GetCurrent(7) ); 
-  frc::SmartDashboard::PutBoolean("Limit Swith Value", LiftSwitch.Get());
-  
+  frc::SmartDashboard::PutNumber("Cone Wheel Output", power.GetCurrent(7) );*/ 
+  frc::SmartDashboard::PutBoolean("Limit Switch Value", LiftSwitch.Get());
+  frc::SmartDashboard::PutNumber("Left Drive Encoder", leftdriveEncoder.GetDistance());
+  frc::SmartDashboard::PutNumber("Right Drive Encoder", rightdriveEncoder.GetDistance());
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
   }
@@ -39,17 +43,19 @@ void Robot::AutonomousInit() {
   //     kAutoNameDefault);
   std::cout << "Auto selected: " << m_autoSelected << std::endl;
   if ( m_autoSelected == kAutoMobilityCone) {autoMode = AutoMobilityCone;}
-  else if ( m_autoSelected == kAutoCharge) {autoMode = AutoCharge;}
+  else if ( m_autoSelected == kAutoMobilityCube) {autoMode = AutoMobilityCube;}
+  else if ( m_autoSelected == kAutoChargeCone) {autoMode = AutoChargeCone;}
+  else if ( m_autoSelected == kAutoChargeCube) {autoMode = AutoChargeCube;}
+  else if ( m_autoSelected == kAutoForward) {autoMode = AutoForward;}
   else autoMode = AutoDoNothing;
+  leftdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
+	rightdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
+  lift1Encoder.SetDistancePerPulse(1./128.);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
 }
 
-void Robot::AutonomousPeriodic() {
-  if (m_autoSelected == kAutoMobilityCone && autoactive) {
-    if (DistanceDrive(.7,AUTODIST, true) == DONE) autoactive = false;
-  }
-  else drive.TankDrive(0,0,false); 
+void Robot::AutonomousPeriodic() { 
 
 switch (autoMode) {
 
@@ -74,11 +80,13 @@ case 1:
 
 if(lift2.Get() == lift2.kReverse) {
   lift2.Set(lift2.kForward);
+  AutoTimer.Reset();
 }
 else {lift2.Set(lift2.kOff);}
 
 if(lift2.Get() == lift2.kForward) {
-  AutoStage = 2;
+  
+  if((int)AutoTimer.Get() >= 2){AutoStage = 2;}
 }
 break;
 
@@ -124,14 +132,27 @@ case AutoMobilityCube:{
 
 }
 break;
-case AutoCharge:{
-
+//AutoCharge Cone
+case AutoChargeCone:{
+  break;
 }
-break;
+//AutoCharge Cube
+case AutoChargeCube:{
+  break;
+}
+//Auto Forward
+case AutoForward:
+  if (m_autoSelected == kAutoForward && autoactive) {
+    if (DistanceDrive(1,AUTODIST, false) == DONE) autoactive = false;
+  }
+  else drive.TankDrive(0,0,false);
+  break;
 
 case AutoDoNothing: {
-  
+      drive.TankDrive(0,0,false); 
+    break;
 }
+
 break;
 }
 }
@@ -153,8 +174,12 @@ void Robot::TeleopPeriodic() {
   else {
     drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1));
     sdfr = false;}
-  if (gamepad.GetBackButtonPressed()) Abort();
+  if (rightdrivestick.GetRawButton(10)) Abort();
 
+//Arm Encoder Lock
+if(gamepad.GetBackButton()) {
+
+}
 
 //Arm 1 + Limits
 if(gamepad.GetLeftY() > .3 && LiftSwitch.Get()) {
@@ -172,14 +197,14 @@ lift1motor.Set(gamepad.GetLeftY());
 else{lift1motor.Set(0);}
 
 //Cube Wheels
-  if(gamepad.GetLeftTriggerAxis() > .5) {
+  if(gamepad.GetLeftTriggerAxis() > .7) {
     lwheelmotor.Set(1);
     rwheelmotor.Set(-1);
-    }
-  else if(gamepad.GetRightTriggerAxis() > .5) {
+  } 
+  else if(gamepad.GetRightTriggerAxis() > .7) {
     lwheelmotor.Set(-1);
     rwheelmotor.Set(1);
-  } 
+    }
   else {
     lwheelmotor.Set(0);
     rwheelmotor.Set(0);
@@ -234,15 +259,6 @@ else{lift1motor.Set(0);}
   }
   else {brake.Set(brake.kOff);}
 
-
-  
-
-  
-
- 
-
-
-
   }
 
 
@@ -263,9 +279,18 @@ void Robot::StraightDrive(){
     rightdriveEncoder.Reset();
     sdfr = true;
   }
-  double throttle = (-1 *leftdrivestick.GetY());
+// Prior year code:
+//  double throttle = (-1 *leftdrivestick.GetY());
+//  double difference = (-1 * rightdriveEncoder.GetDistance()) - (leftdriveEncoder.GetDistance());
+//  drive.TankDrive((throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
+// get speed from left stick
+  double throttle = (leftdrivestick.GetY());
+// calculate difference in left & right encoders
+// right encoder reads negative so multiply by -1
+// positive difference means right encoder reads higher, so robot has veered left
   double difference = (-1 * rightdriveEncoder.GetDistance()) - (leftdriveEncoder.GetDistance());
-  drive.TankDrive((throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
+// -1 multiplier on left side
+  drive.TankDrive(-1 * (throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
   }
 
 //Should keep the robot from moving, never tested it
@@ -296,6 +321,7 @@ void Robot::Abort(){
   Pnm3DefState = frc::DoubleSolenoid::Value::kReverse;
   Pnm4DefState = frc::DoubleSolenoid::Value::kReverse;
 }
+
 
 void Robot::Lock(){
   if (gamepad.GetLeftBumper()) auxSpedCtrlr4DefState = AUXSPDCTL_SPD;
@@ -378,7 +404,9 @@ int Robot::DistanceDrive (float speed, float distance, bool brake)
 		newSpeed = speed;
 	}
 
-	drive.CurvatureDrive(newSpeed * (AUTOFORWARD), 0, false);
+	//drive.CurvatureDrive(newSpeed * (AUTOFORWARD), 0, false);
+ 	drive.TankDrive(-1 * newSpeed * direction * AUTOFORWARD, newSpeed * direction * AUTOFORWARD);
+
 	curDistance = abs(leftdriveEncoder.GetDistance());
   if (curDistance < distance) {
     return NOTDONEYET;
@@ -400,6 +428,7 @@ int Robot::DistanceDrive (float speed, float distance, bool brake)
   FirstCallFlag = true;
   return DONE;
 }
+
 
 #ifndef RUNNING_FRC_TESTS
 int main() {
