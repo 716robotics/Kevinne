@@ -62,6 +62,7 @@ class Robot : public frc::TimedRobot {
   bool autoactive = true;
   enum autoModeTypes {AutoMobilityCone, AutoChargeCone, AutoMobilityCube, AutoChargeCube, AutoForward, AutoDoNothing,} autoMode;
   int AutoStage = 0;
+  int AutoMini = 0;
   //Digital Inputs
   frc::DigitalInput LiftSwitch {9}; 
   //Default States
@@ -89,7 +90,8 @@ class Robot : public frc::TimedRobot {
   void Lock();
   int DistanceDrive(float,float,bool);
   float m_autodistance;
-
+  float lockvalue = 0;
+  bool lockbool = false;
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobilityCone = "Score Cone + Back out";
