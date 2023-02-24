@@ -6,9 +6,13 @@
 
 #include "Robot.h"
 
+
 #include <iostream>
 
 #include <frc/smartdashboard/SmartDashboard.h>
+
+#include <hal/SimDevice.h>
+#include <hal/simulation/SimDeviceData.h>
 
 void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoMobilityCone, kAutoMobilityCone);
@@ -34,6 +38,7 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutNumber("Encoder Lock Value", lockvalue);
   //frc::SmartDashboard::PutBoolean("Encoder Lock Bool", lockbool);
   frc::SmartDashboard::PutNumber("Auto Timer", (double)AutoTimer.Get());
+  frc::SmartDashboard::PutNumber("Pitch", gyro.GetPitch());
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
   }
@@ -71,6 +76,8 @@ switch (AutoStage) {
 case 0:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
+  leftdriveEncoder.Reset();
+  rightdriveEncoder.Reset();
   AutoStage = 1;
   }
 else {lift1motor.Set(-.7);}
@@ -119,6 +126,7 @@ if((double)AutoTimer.Get() >= .25){
 }
 break;
 
+
 case 4:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
@@ -151,83 +159,150 @@ break;
 case 7:
 autoMode = AutoDoNothing;
 break;
-/*if (DistanceDrive(53,-.7, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 6;
-}
-
-break;
-
-case 6:
-if (DistanceDrive(22,-.3, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 7;
-}
-
-break;
-
-case 7:
-if (DistanceDrive(70,-.7, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 8;
-}
-
-break;
-
-case 8:
-break;
-
-case 9:
-if (DistanceDrive(70,.7, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 10;
-}
-
-break;
-
-case 10:
-if (DistanceDrive(22,.3, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 11;
-}
-
-break;
-
-case 11:
-if (DistanceDrive(53,.7, false) == DONE) autoactive = false; {
- drive.TankDrive(0,0,false);
- AutoStage = 12;
-}
-
-break;
-
-case 12:*/
-break;
 
 }
-
 break;
 
+
+//Auto Mobility Cube
 case AutoMobilityCube:{
 
 }
 break;
+
+
 //AutoCharge Cone
-case AutoChargeCone:{
-  break;
+case AutoChargeCone:
+switch (AutoStage) {
+
+
+case 0:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  leftdriveEncoder.Reset();
+  rightdriveEncoder.Reset();
+  AutoStage = 1;
+  }
+else {lift1motor.Set(-.7);}
+if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
+lift2.Set(lift2.kReverse);
+AutoTimer.Start();
 }
+break; 
+
+
+case 1:
+if((double)AutoTimer.Get() >= .75){
+lift2.Set(lift2.kOff);
+AutoStage = 2;
+}
+break;
+
+
+case 2:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 3;
+}
+break;
+
+
+case 3:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+if((double)AutoTimer.Get() >= .25){
+  lift2.Set(lift2.kForward);
+  clamp.Set(clamp.kReverse);
+  if(lift1Encoder.GetDistance() <= -75){
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 4;
+  }
+}
+break;
+
+
+case 4:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(-.4, 9, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoStage = 5;
+}
+break;
+
+case 5:
+if(LiftSwitch.Get() == true) {
+    lift1motor.Set(0);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 6;
+}
+  else {lift1motor.Set(.4);}
+break;
+
+
+case 6:
+  if (DistanceDrive(-.7, 22, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 7;
+  }
+break;
+
+
+case 7:
+if(leftdriveEncoder.GetDistance() >= -60 && rightdriveEncoder.GetDistance() <= 60){
+SpeedDrive();
+} 
+else{
+  drive.TankDrive(0,0,false);
+  brake.Set(brake.kOff);
+  AutoStage = 8;
+}
+break;
+
+
+case 8:
+brake.Set(brake.kForward);
+AutoStage = 9;
+break;
+
+case 9:
+autoMode = AutoDoNothing;
+
+break;
+
+}
+break;
+
+
 //AutoCharge Cube
 case AutoChargeCube:{
   break;
 }
 //Auto Forward
 case AutoForward:
+switch (AutoStage){
   if (m_autoSelected == kAutoForward && autoactive) {
     if (DistanceDrive(-.7,135, true) == DONE) autoactive = false;
   }
   else drive.TankDrive(0,0,false);
   break;
-
+}
+break;
 case AutoDoNothing: {
       drive.TankDrive(0,0,false); 
     break;
@@ -236,7 +311,6 @@ case AutoDoNothing: {
 break;
 }
 }
-
 
 
 
@@ -362,6 +436,18 @@ void Robot::DisabledPeriodic() {}
 void Robot::TestInit() {}
 
 void Robot::TestPeriodic() {}
+
+void Robot::SpeedDrive() {
+  if(!sdfr){
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    sdfr = true;
+  }
+  double throttle = (.7);
+  double difference = (-1 * rightdriveEncoder.GetDistance()) - (leftdriveEncoder.GetDistance());
+    drive.TankDrive(-1 * (throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
+  }
+
 
 void Robot::StraightDrive(){
   if (!sdfr){
