@@ -1,4 +1,4 @@
-// FRC Team 716 Basic Drive code
+AB_ok_count// FRC Team 716 Basic Drive code
 // not reccomended for general use
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
@@ -760,7 +760,9 @@ bool Robot::AutoBalance(){
 	float truePitch = gyro.GetPitch() - NOMINALPITCH;
 	if (abs(truePitch) < 3.0){
 		drive.TankDrive(0, 0, false);
-		return true;
+		AB_ok_count ++;
+		if (AB_ok_count > 20){
+			return true;}
 	}
 	Speed = truePitch * 0.03;
 	if (abs(Speed)<0.1){
