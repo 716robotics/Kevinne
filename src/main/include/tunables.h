@@ -30,3 +30,4 @@
 #define AUTODIST 180
 
 #define NOMINALPITCH	-9.1
+#define NOMINALROLL     -2.0

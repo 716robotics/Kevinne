@@ -23,7 +23,7 @@ void Robot::RobotInit() {
   m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
   compressor.EnableDigital();
-
+  gyro.Reset();
 }
 
 void Robot::RobotPeriodic() {
@@ -42,6 +42,10 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Speed Controller L", lDrive.Get());
   frc::SmartDashboard::PutNumber("Speed Controller R", rDrive.Get());
   frc::SmartDashboard::PutNumber("Speed: ", Speed);
+  frc::SmartDashboard::PutNumber("True Pitch", gyro.GetPitch() - NOMINALPITCH);
+  frc::SmartDashboard::PutNumber("Yaw", gyro.GetYaw());
+  frc::SmartDashboard::PutNumber("Roll", gyro.GetRoll());
+  
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
   }
@@ -65,7 +69,7 @@ void Robot::AutonomousInit() {
   lift1Encoder.SetDistancePerPulse(1./128.);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-  
+  yaw_offset = gyro.GetYaw();
 }
 
 void Robot::AutonomousPeriodic() { 
@@ -759,21 +763,30 @@ void Robot::Lock(){
 //Uses NAVX gyroscope to auto-balance on charge station
 bool Robot::AutoBalance(){
 	float truePitch = gyro.GetPitch() - NOMINALPITCH;
-	if (abs(truePitch) < 3.5){
+	if (abs(truePitch) < 6.0){
 		drive.TankDrive(0, 0, false);
 		AB_ok_count ++;
-		if (AB_ok_count > 20){
-			return true;}
+		if (AB_ok_count > 2){
+			AB_brake = true;
+      brake.Set(brake.kForward);
+      }
 	}
-	Speed = truePitch * -0.029;
-	if (abs(Speed)<0.16){
-		Speed = 0.16*(Speed/abs(Speed));
+	Speed = truePitch * -0.035;
+	if (abs(Speed)<0.25){
+		Speed = 0.26*(Speed/abs(Speed));
 	}
-	if (abs(Speed)>0.3){
-		Speed = 0.3*(Speed/abs(Speed));
+	if (abs(Speed)>0.35){
+		Speed = 0.35*(Speed/abs(Speed));
 	}
-
+  if (AB_brake){
+    float yaw = gyro.GetYaw() - yaw_offset;
+    float angle = truePitch*(1-yaw/90.0)-(gyro.GetRoll()-NOMINALROLL)*(yaw/90.0);
+    Speed = angle * -0.035;
+    drive.TankDrive(0,Speed*1.2,false);
+  }
+  else{
 	SpeedDrive();
+  }
 	return false;
 }
 

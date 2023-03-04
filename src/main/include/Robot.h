@@ -106,6 +106,8 @@ class Robot : public frc::TimedRobot {
   bool lockbool = false;
   double Speed; 
   int AB_ok_count = 0;
+  float yaw_offset = 0;
+  bool AB_brake = false;
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobilityCone = "Score Cone + Back out";
