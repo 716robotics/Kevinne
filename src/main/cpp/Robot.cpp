@@ -69,7 +69,6 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() { 
-
 switch (autoMode) {
 
 
@@ -535,7 +534,8 @@ break;
 
 case 9:
 brake.Set(brake.kForward);
-AutoStage = 10;
+HoldTheLine();
+
 break;
 
 case 10:
@@ -728,7 +728,7 @@ void Robot::HoldTheLine(){
     rightdriveEncoder.Reset();
     sdfr = true;
   }
-  drive.TankDrive((0.05 * leftdriveEncoder.GetDistance()),(0.05 * rightdriveEncoder.GetDistance()), false);;
+  drive.TankDrive((-0.05 * leftdriveEncoder.GetDistance()),(-0.05 * rightdriveEncoder.GetDistance()), false);;
 }
 
 void Robot::Abort(){
