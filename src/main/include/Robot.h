@@ -99,6 +99,7 @@ class Robot : public frc::TimedRobot {
   void HoldTheLine();
   void Abort();
   void Lock();
+  bool AutoBalance();
   int DistanceDrive(float,float,bool);
   float m_autodistance;
   float lockvalue = 0;
