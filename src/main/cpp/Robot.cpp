@@ -16,7 +16,7 @@
 
 void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoMobilityCone, kAutoMobilityCone);
-  m_chooser.AddOption(kAutoMobilityCone, kAutoMobilityCone);
+  m_chooser.AddOption(kAutoMobilityCube, kAutoMobilityCube);
   m_chooser.AddOption(kAutoChargeCone, kAutoChargeCone);
   m_chooser.AddOption(kAutoChargeCube, kAutoChargeCube); 
   m_chooser.AddOption(kAutoForward, kAutoForward); 
@@ -55,12 +55,14 @@ void Robot::AutonomousInit() {
   else if ( m_autoSelected == kAutoChargeCone) {autoMode = AutoChargeCone;}
   else if ( m_autoSelected == kAutoChargeCube) {autoMode = AutoChargeCube;}
   else if ( m_autoSelected == kAutoForward) {autoMode = AutoForward;}
-  else autoMode = AutoDoNothing;
+  else if ( m_autoSelected == kAutoDoNothing) {autoMode = AutoDoNothing;}
+  else {autoMode = AutoDoNothing;}
   leftdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
 	rightdriveEncoder.SetDistancePerPulse(ROBOTDISTANCEPERPULSE);
   lift1Encoder.SetDistancePerPulse(1./128.);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
+  
 }
 
 void Robot::AutonomousPeriodic() { 
@@ -166,7 +168,118 @@ break;
 
 //Auto Mobility Cube
 case AutoMobilityCube:{
+switch (AutoStage) {
 
+
+case 0:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  leftdriveEncoder.Reset();
+  rightdriveEncoder.Reset();
+  AutoStage = 1;
+  }
+else {lift1motor.Set(-.7);}
+if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
+lift2.Set(lift2.kReverse);
+AutoTimer.Start();
+}
+break; 
+
+
+case 1:
+if((double)AutoTimer.Get() >= .75){
+lift2.Set(lift2.kOff);
+AutoStage = 2;
+}
+break;
+
+
+case 2:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 3;
+}
+break;
+
+
+case 3:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+if((double)AutoTimer.Get() >= .25){
+  lift2.Set(lift2.kForward);
+  clamp.Set(clamp.kReverse);
+  if(lift1Encoder.GetDistance() <= -75){
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 4;
+  }
+}
+break;
+
+
+case 4:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(-.4, 9, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoStage = 5;
+}
+break;
+
+case 5:
+if(LiftSwitch.Get() == true) {
+    lift1motor.Set(0);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 6;
+}
+  else {lift1motor.Set(.4);}
+break;
+
+
+case 6:
+  if (DistanceDrive(-.7, 50, true) == DONE) {
+    drive.TankDrive(0,0,false);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 7;
+  }
+break;
+
+
+case 7:
+  if (DistanceDrive(-.4, 23, true) == DONE) {
+    drive.TankDrive(0,0,false);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 8;
+  }
+break;
+
+
+case 8:
+  if (DistanceDrive(-.7, 55, true) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoStage = 9;
+  }
+break;
+case 9:
+autoMode = AutoDoNothing;
+break;
+
+}
+break;
 }
 break;
 
@@ -258,6 +371,7 @@ case 6:
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
+    Speed = .7;
     AutoStage = 7;
   }
 break;
@@ -291,26 +405,158 @@ break;
 
 //AutoCharge Cube
 case AutoChargeCube:{
-  break;
-}
-//Auto Forward
-case AutoForward:
-switch (AutoStage){
-  if (m_autoSelected == kAutoForward && autoactive) {
-    if (DistanceDrive(-.7,135, true) == DONE) autoactive = false;
+switch (AutoStage) {
+
+
+case 0:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  leftdriveEncoder.Reset();
+  rightdriveEncoder.Reset();
+  AutoStage = 1;
   }
-  else drive.TankDrive(0,0,false);
-  break;
+else {lift1motor.Set(-.7);}
+if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
+lift2.Set(lift2.kReverse);
+AutoTimer.Start();
+}
+break; 
+
+
+case 1:
+if((double)AutoTimer.Get() >= .75){
+lift2.Set(lift2.kOff);
+AutoStage = 2;
 }
 break;
-case AutoDoNothing: {
-      drive.TankDrive(0,0,false); 
-    break;
+
+
+case 2:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 3;
 }
+break;
+
+
+case 3:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+if((double)AutoTimer.Get() >= .25){
+  lift2.Set(lift2.kForward);
+  clamp.Set(clamp.kReverse);
+  if(lift1Encoder.GetDistance() <= -75){
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 4;
+  }
+}
+break;
+
+
+case 4:
+if(lift1Encoder.GetDistance() <= -75) {
+  lift1motor.Set(0);
+  }
+else {lift1motor.Set(-.7);}
+
+if (DistanceDrive(-.4, 9, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoStage = 5;
+}
+break;
+
+case 5:
+if(LiftSwitch.Get() == true) {
+    lift1motor.Set(0);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 6;
+}
+  else {lift1motor.Set(.4);}
+break;
+
+
+case 6:
+  if (DistanceDrive(-.7, 30, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    Speed = .7;
+    AutoStage = 7;
+  }
+break;
+
+
+case 7:
+if(gyro.GetPitch() <= 3 && gyro.GetPitch() >= -16){
+SpeedDrive();
+} 
+else{
+  drive.TankDrive(0,0,false);
+  brake.Set(brake.kOff);
+  Speed = .5;
+  AutoStage = 8;
+}
+break;
+
+
+case 8:
+if(gyro.GetPitch() <= -12 && gyro.GetPitch() >= -26){
+SpeedDrive();
+} 
+else{
+  drive.TankDrive(0,0,false);
+  brake.Set(brake.kOff);
+  AutoStage = 9;
+}
+break;
+
+
+case 9:
+brake.Set(brake.kForward);
+AutoStage = 10;
+break;
+
+case 10:
+autoMode = AutoDoNothing;
 
 break;
 }
 }
+break;
+//Auto Forward
+case AutoForward:
+switch (AutoStage){
+  case 0:
+  if (m_autoSelected == kAutoForward) {
+    if (DistanceDrive(-.7,135, true) == DONE) autoactive = false;
+
+  else drive.TankDrive(0,0,false);
+}
+break;
+case 1:
+autoMode = AutoDoNothing;
+break;
+}
+break;
+case AutoDoNothing: 
+      drive.TankDrive(0,0,false); 
+    break;
+
+
+break;
+}
+}
+
 
 
 
@@ -363,8 +609,8 @@ else{lift1motor.Set(0);}
 //Cone+Cube Wheels
   if (gamepad.GetLeftBumper()) {
     conewheelmotor.Set(1);
-    lwheelmotor.Set(.4);
-    rwheelmotor.Set(-.4);
+    lwheelmotor.Set(.6);
+    rwheelmotor.Set(-.6);
   }
   else if (gamepad.GetRightBumper()) {
     conewheelmotor.Set(-1);
@@ -405,20 +651,12 @@ else{lift1motor.Set(0);}
   else {clamp.Set(clamp.kOff);}
 
 
-//Alignment Arms
-  if(leftdrivestick.GetRawButton(2)) {
-    alignarms.Set(alignarms.kForward);
-  }
-  else if(rightdrivestick.GetRawButton(2)) {
-    alignarms.Set(alignarms.kReverse);
-  }
-  else {alignarms.Set(alignarms.kOff);}
 
 //Brake
   if(leftdrivestick.GetRawButton(3)) {
     brake.Set(brake.kForward);
   }
-  else if(rightdrivestick.GetRawButton(3)) {
+  else if(rightdrivestick.GetRawButton(2)) {
     brake.Set(brake.kReverse);
   }
   else {brake.Set(brake.kOff);}
@@ -443,7 +681,7 @@ void Robot::SpeedDrive() {
     rightdriveEncoder.Reset();
     sdfr = true;
   }
-  double throttle = (.7);
+  double throttle = Speed;
   double difference = (-1 * rightdriveEncoder.GetDistance()) - (leftdriveEncoder.GetDistance());
     drive.TankDrive(-1 * (throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
   }

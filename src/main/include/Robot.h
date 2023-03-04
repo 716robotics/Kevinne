@@ -103,12 +103,13 @@ class Robot : public frc::TimedRobot {
   float m_autodistance;
   float lockvalue = 0;
   bool lockbool = false;
+  double Speed; 
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobilityCone = "Score Cone + Back out";
   const std::string kAutoMobilityCube = "Score Cube + Back out";
   const std::string kAutoChargeCone = "Score Cone + Charge";
-  const std::string kAutoChargeCube = "Score Cone + Charge";
+  const std::string kAutoChargeCube = "Score Cube + Charge";
   const std::string kAutoForward = "Drive Forward";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;
