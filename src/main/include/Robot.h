@@ -94,6 +94,7 @@ class Robot : public frc::TimedRobot {
   void DisabledPeriodic() override;
   void TestInit() override;
   void TestPeriodic() override;
+  bool AutoBalance();
   void SpeedDrive();
   void StraightDrive();
   void HoldTheLine();

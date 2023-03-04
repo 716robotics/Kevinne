@@ -519,10 +519,7 @@ break;
 
 
 case 8:
-if(gyro.GetPitch() <= -16){
-SpeedDrive();
-} 
-else{
+if(AutoBalance()){
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
   AutoStage = 9;
@@ -756,6 +753,24 @@ void Robot::Lock(){
   if (gamepad.GetYButton()) Pnm2DefState = frc::DoubleSolenoid::Value::kForward;
   if (gamepad.GetBButton()) Pnm3DefState = frc::DoubleSolenoid::Value::kForward;
   if (gamepad.GetAButton()) Pnm4DefState = frc::DoubleSolenoid::Value::kForward;
+}
+
+//Uses NAVX gyroscope to auto-balance on charge station
+bool Robot::AutoBalance(){
+	float truePitch = gyro.GetPitch() - NOMINALPITCH;
+	if (abs(truePitch) < 3.0){
+		drive.TankDrive(0, 0, false);
+		return true;
+	}
+	Speed = truePitch * 0.03;
+	if (abs(Speed)<0.1){
+		Speed += 0.1*(Speed/abs(Speed));
+	}
+	if (abs(Speed)>0.45){
+		Speed = 0.4*(Speed/abs(Speed));
+	}
+	SpeedDrive();
+	return false;
 }
 
 int Robot::DistanceDrive (float speed, float distance, bool brake)

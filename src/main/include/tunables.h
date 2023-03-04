@@ -28,3 +28,5 @@
 
 //Approximate distance for auto to drive forward in inches
 #define AUTODIST 180
+
+#define NOMINALPITCH	-9.1
