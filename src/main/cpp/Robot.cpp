@@ -39,6 +39,9 @@ void Robot::RobotPeriodic() {
   //frc::SmartDashboard::PutBoolean("Encoder Lock Bool", lockbool);
   frc::SmartDashboard::PutNumber("Auto Timer", (double)AutoTimer.Get());
   frc::SmartDashboard::PutNumber("Pitch", gyro.GetPitch());
+  frc::SmartDashboard::PutNumber("Speed Controller L", lDrive.Get());
+  frc::SmartDashboard::PutNumber("Speed Controller R", rDrive.Get());
+  frc::SmartDashboard::PutNumber("Speed: ", Speed);
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
   }
@@ -405,10 +408,12 @@ break;
 
 //AutoCharge Cube
 case AutoChargeCube:{
+  std::cout << "AutoStage: " << AutoStage << std::endl;
 switch (AutoStage) {
 
 
 case 0:
+drive.TankDrive(0,0,false);
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   leftdriveEncoder.Reset();
@@ -424,6 +429,7 @@ break;
 
 
 case 1:
+drive.TankDrive(0,0,false);
 if((double)AutoTimer.Get() >= .75){
 lift2.Set(lift2.kOff);
 AutoStage = 2;
@@ -480,43 +486,47 @@ if(LiftSwitch.Get() == true) {
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
     AutoStage = 6;
+    sdfr = true;
 }
   else {lift1motor.Set(.4);}
 break;
 
 
 case 6:
-  if (DistanceDrive(-.7, 30, false) == DONE) {
+  if (DistanceDrive(-.7, 22, false) == DONE) {
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    Speed = .7;
+    Speed = .8;
     AutoStage = 7;
+    sdfr = true;
   }
 break;
 
 
 case 7:
-if(gyro.GetPitch() <= 3 && gyro.GetPitch() >= -16){
+if(gyro.GetPitch() <= 3 && gyro.GetPitch() >= -26){
 SpeedDrive();
 } 
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  Speed = .5;
+  Speed = .35;
   AutoStage = 8;
+  sdfr = true;
 }
 break;
 
 
 case 8:
-if(gyro.GetPitch() <= -12 && gyro.GetPitch() >= -26){
+if(gyro.GetPitch() <= -16){
 SpeedDrive();
 } 
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
   AutoStage = 9;
+  sdfr = true;
 }
 break;
 
@@ -683,6 +693,7 @@ void Robot::SpeedDrive() {
   }
   double throttle = Speed;
   double difference = (-1 * rightdriveEncoder.GetDistance()) - (leftdriveEncoder.GetDistance());
+  std::cout << "SpeedDrive Difference " << difference << std::endl;
     drive.TankDrive(-1 * (throttle - (difference * 0.1)), (throttle + (difference * 0.1)), false);
   }
 
