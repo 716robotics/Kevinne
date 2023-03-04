@@ -505,6 +505,8 @@ break;
 
 
 case 7:
+if(tip > gyro.GetPitch())
+{tip = gyro.GetPitch();}
 if(gyro.GetPitch() <= 3 && gyro.GetPitch() >= -26){
 SpeedDrive();
 } 
@@ -519,7 +521,7 @@ break;
 
 
 case 8:
-if(gyro.GetPitch() <= -16){
+if(gyro.GetPitch() <= tip + 6){
 SpeedDrive();
 } 
 else{
