@@ -1,4 +1,4 @@
-AB_ok_count// FRC Team 716 Basic Drive code
+// FRC Team 716 Basic Drive code
 // not reccomended for general use
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
@@ -69,7 +69,8 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() { 
-
+  AutoBalance();
+  return;
 switch (autoMode) {
 
 
@@ -758,19 +759,20 @@ void Robot::Lock(){
 //Uses NAVX gyroscope to auto-balance on charge station
 bool Robot::AutoBalance(){
 	float truePitch = gyro.GetPitch() - NOMINALPITCH;
-	if (abs(truePitch) < 3.0){
+	if (abs(truePitch) < 3.5){
 		drive.TankDrive(0, 0, false);
 		AB_ok_count ++;
 		if (AB_ok_count > 20){
 			return true;}
 	}
-	Speed = truePitch * 0.03;
-	if (abs(Speed)<0.1){
-		Speed += 0.1*(Speed/abs(Speed));
+	Speed = truePitch * -0.029;
+	if (abs(Speed)<0.16){
+		Speed = 0.16*(Speed/abs(Speed));
 	}
-	if (abs(Speed)>0.45){
-		Speed = 0.4*(Speed/abs(Speed));
+	if (abs(Speed)>0.3){
+		Speed = 0.3*(Speed/abs(Speed));
 	}
+
 	SpeedDrive();
 	return false;
 }
