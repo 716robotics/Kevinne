@@ -779,9 +779,15 @@ bool Robot::AutoBalance(){
 		Speed = 0.35*(Speed/abs(Speed));
 	}
   if (AB_brake){
-    float yaw = gyro.GetYaw() - yaw_offset;
-    float angle = truePitch*(1-yaw/90.0)-(gyro.GetRoll()-NOMINALROLL)*(yaw/90.0);
-    Speed = angle * -0.035;
+    double AByaw = (gyro.GetYaw() - yaw_offset)/90.0;
+    if (AByaw < 0.0){
+    	AByaw = 0.0;
+    }
+    else if (AByaw > 1.0){
+    	AByaw = 1.0;
+    }
+    float ABangle = truePitch*(1.0-AByaw)-(gyro.GetRoll()-NOMINALROLL)*(AByaw);
+    Speed = ABangle * -0.035;
     drive.TankDrive(0,Speed*1.2,false);
   }
   else{
