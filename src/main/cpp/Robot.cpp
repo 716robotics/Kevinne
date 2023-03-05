@@ -47,6 +47,7 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Roll", gyro.GetRoll());
   frc::SmartDashboard::PutNumber("LDrive",lDrive.Get());
   frc::SmartDashboard::PutNumber("RDrive",rDrive.Get());
+  frc::SmartDashboard::PutNumber("PitchRate", gyro.GetRawGyroX());
 
   
   if(LiftSwitch.Get()) {
@@ -73,6 +74,7 @@ void Robot::AutonomousInit() {
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
   yaw_offset = gyro.GetYaw();
+
 }
 
 void Robot::AutonomousPeriodic() { 
@@ -460,6 +462,7 @@ break;
 
 
 case 3:
+drive.TankDrive(0,0,false);
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -489,6 +492,7 @@ if (DistanceDrive(-.4, 9, false) == DONE) {
 break;
 
 case 5:
+drive.TankDrive(0,0,false);
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
@@ -525,23 +529,29 @@ else{
 }
 break;
 
-
 case 8:
-if(AutoBalance()){
-  drive.TankDrive(0,0,false);
-  brake.Set(brake.kOff);
+if(DistanceDrive(-0.45, 5, false) == DONE){
   AutoStage = 9;
   sdfr = true;
 }
 break;
 
-
 case 9:
-brake.Set(brake.kForward);
-AutoStage = 10;
+if(AutoBalance()){
+  drive.TankDrive(0,0,false);
+  brake.Set(brake.kOff);
+  AutoStage = 10;
+  sdfr = true;
+}
 break;
 
+
 case 10:
+brake.Set(brake.kForward);
+AutoStage = 11;
+break;
+
+case 11:
 autoMode = AutoDoNothing;
 
 break;
@@ -766,20 +776,12 @@ void Robot::Lock(){
 //Uses NAVX gyroscope to auto-balance on charge station
 bool Robot::AutoBalance(){
 	float truePitch = gyro.GetPitch() - NOMINALPITCH;
-	if (abs(truePitch) < 6.0){
+	if (gyro.GetRawGyroX() > 45.0){//degrees/sec
+    AB_ok_count ++;
 		drive.TankDrive(0, 0, false);
-		AB_ok_count ++;
-		if (AB_ok_count > 2){
+      if (AB_ok_count >=3){
 			AB_brake = true;
-      brake.Set(brake.kForward);
-      }
-	}
-	Speed = truePitch * -0.035;
-	if (abs(Speed)<0.25){
-		Speed = 0.26*(Speed/abs(Speed));
-	}
-	if (abs(Speed)>0.35){
-		Speed = 0.35*(Speed/abs(Speed));
+      brake.Set(brake.kForward);}
 	}
   if (AB_brake){
     double AByaw = (gyro.GetYaw() - yaw_offset)/90.0;
@@ -791,10 +793,20 @@ bool Robot::AutoBalance(){
     }
     float ABangle = truePitch*(1.0-AByaw)-(gyro.GetRoll()-NOMINALROLL)*(AByaw);
     frc::SmartDashboard::PutNumber("ABangle", ABangle);
-    Speed = ABangle * -0.035;
-    drive.TankDrive(0,Speed*1.2,false);
+    Speed = ABangle * -0.025;
+    if (Speed > 0.24){
+      Speed = 0.24;
+    }
+    drive.TankDrive(0,Speed,false);
   }
   else{
+    	Speed = truePitch * -0.035;
+	if (abs(Speed)<0.1){
+		Speed = 0.1*(Speed/abs(Speed));
+	}
+	if (abs(Speed)>0.35){
+		Speed = 0.35*(Speed/abs(Speed));
+	}
 	SpeedDrive();
   }
 	return false;
