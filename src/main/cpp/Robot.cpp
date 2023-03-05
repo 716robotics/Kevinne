@@ -452,6 +452,7 @@ break;
 
 
 case 3:
+drive.TankDrive(0,0,false);
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -481,6 +482,7 @@ if (DistanceDrive(-.4, 9, false) == DONE) {
 break;
 
 case 5:
+drive.TankDrive(0,0,false);
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
@@ -584,9 +586,9 @@ void Robot::TeleopPeriodic() {
   if(rightdrivestick.GetTrigger()) HoldTheLine();
   else if(leftdrivestick.GetTrigger()) StraightDrive();
   else {
-    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1));
+    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1), false);
     sdfr = false;}
-  if (rightdrivestick.GetRawButton(10)) Abort();
+  if (rightdrivestick.GetRawButton(4)) Abort();
 
 //Arm Encoder Lock
 if(gamepad.GetLeftStickButton()) {
