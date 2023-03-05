@@ -45,6 +45,9 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("True Pitch", gyro.GetPitch() - NOMINALPITCH);
   frc::SmartDashboard::PutNumber("Yaw", gyro.GetYaw());
   frc::SmartDashboard::PutNumber("Roll", gyro.GetRoll());
+  frc::SmartDashboard::PutNumber("LDrive",lDrive.Get());
+  frc::SmartDashboard::PutNumber("RDrive",rDrive.Get());
+
   
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
@@ -584,9 +587,9 @@ void Robot::TeleopPeriodic() {
   if(rightdrivestick.GetTrigger()) HoldTheLine();
   else if(leftdrivestick.GetTrigger()) StraightDrive();
   else {
-    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1));
+    drive.TankDrive((leftdrivestick.GetY() * -1), (rightdrivestick.GetY() * 1),false);
     sdfr = false;}
-  if (rightdrivestick.GetRawButton(10)) Abort();
+  //if (rightdrivestick.GetRawButton(10)) Abort();
 
 //Arm Encoder Lock
 if(gamepad.GetLeftStickButton()) {
@@ -787,6 +790,7 @@ bool Robot::AutoBalance(){
     	AByaw = 1.0;
     }
     float ABangle = truePitch*(1.0-AByaw)-(gyro.GetRoll()-NOMINALROLL)*(AByaw);
+    frc::SmartDashboard::PutNumber("ABangle", ABangle);
     Speed = ABangle * -0.035;
     drive.TankDrive(0,Speed*1.2,false);
   }
