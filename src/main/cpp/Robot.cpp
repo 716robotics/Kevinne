@@ -15,10 +15,10 @@
 #include <hal/simulation/SimDeviceData.h>
 
 void Robot::RobotInit() {
-  m_chooser.SetDefaultOption(kAutoMobilityCone, kAutoMobilityCone);
-  m_chooser.AddOption(kAutoMobilityCube, kAutoMobilityCube);
-  m_chooser.AddOption(kAutoChargeCone, kAutoChargeCone);
-  m_chooser.AddOption(kAutoChargeCube, kAutoChargeCube); 
+  m_chooser.SetDefaultOption(kAutoMobility, kAutoMobility);
+  m_chooser.AddOption(kAutoMobilityWire, kAutoMobilityWire);
+  m_chooser.AddOption(kAutoChargeDist, kAutoChargeDist);
+  m_chooser.AddOption(kAutoChargeGyro, kAutoChargeGyro); 
   m_chooser.AddOption(kAutoForward, kAutoForward); 
   m_chooser.AddOption(kAutoDoNothing, kAutoDoNothing);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
@@ -53,10 +53,10 @@ void Robot::AutonomousInit() {
   // m_autoSelected = SmartDashboard::GetString("Auto Selector",
   //     kAutoNameDefault);
   std::cout << "Auto selected: " << m_autoSelected << std::endl;
-  if ( m_autoSelected == kAutoMobilityCone) {autoMode = AutoMobilityCone;}
-  else if ( m_autoSelected == kAutoMobilityCube) {autoMode = AutoMobilityCube;}
-  else if ( m_autoSelected == kAutoChargeCone) {autoMode = AutoChargeCone;}
-  else if ( m_autoSelected == kAutoChargeCube) {autoMode = AutoChargeCube;}
+  if ( m_autoSelected == kAutoMobility) {autoMode = AutoMobility;}
+  else if ( m_autoSelected == kAutoMobilityWire) {autoMode = AutoMobilityWire;}
+  else if ( m_autoSelected == kAutoChargeDist) {autoMode = AutoChargeDist;}
+  else if ( m_autoSelected == kAutoChargeGyro) {autoMode = AutoChargeGyro;}
   else if ( m_autoSelected == kAutoForward) {autoMode = AutoForward;}
   else if ( m_autoSelected == kAutoDoNothing) {autoMode = AutoDoNothing;}
   else {autoMode = AutoDoNothing;}
@@ -72,8 +72,8 @@ void Robot::AutonomousPeriodic() {
 switch (autoMode) {
 
 
-//Auto Mobility (Cone)
-case AutoMobilityCone:
+//Auto Mobility Normal
+case AutoMobility:
 switch (AutoStage) {
 
 
@@ -148,6 +148,7 @@ if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
+    Speed = .7;
     AutoStage = 6;
 }
   else {lift1motor.Set(.4);}
@@ -155,12 +156,35 @@ break;
 
 
 case 6:
-  if (DistanceDrive(-.7, 135, true) == DONE) {
-    drive.TankDrive(0,0,false);
+  if (leftdriveEncoder.GetDistance() == -93 && rightdriveEncoder.GetDistance() == 93){
+    Speed = .4;
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
     AutoStage = 7;
   }
 break;
+
+
 case 7:
+ if (leftdriveEncoder.GetDistance() == -23 && rightdriveEncoder.GetDistance() == 23){
+    Speed = .7;
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 8;
+  }
+break;
+
+
+case 8:
+ if (leftdriveEncoder.GetDistance() == -55 && rightdriveEncoder.GetDistance() == 55){
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
+    AutoStage = 9;
+  }
+break;
+
+
+case 9:
 autoMode = AutoDoNothing;
 break;
 
@@ -168,8 +192,8 @@ break;
 break;
 
 
-//Auto Mobility Cube
-case AutoMobilityCube:{
+//Auto Mobility Wire
+case AutoMobilityWire:{
 switch (AutoStage) {
 
 
@@ -286,8 +310,8 @@ break;
 break;
 
 
-//AutoCharge Cone
-case AutoChargeCone:
+//AutoCharge Distance
+case AutoChargeDist:
 switch (AutoStage) {
 
 
@@ -405,8 +429,8 @@ break;
 break;
 
 
-//AutoCharge Cube
-case AutoChargeCube:{
+//AutoCharge Gyro
+case AutoChargeGyro:{
   std::cout << "AutoStage: " << AutoStage << std::endl;
 switch (AutoStage) {
 
@@ -528,8 +552,11 @@ SpeedDrive();
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  AutoStage = 9;
   sdfr = true;
+  leftdriveEncoder.Reset();
+  rightdriveEncoder.Reset();
+
+  AutoStage = 9;
 }
 break;
 
@@ -632,12 +659,12 @@ else{lift1motor.Set(0);}
     rwheelmotor.Set(1);
   }
   else if(gamepad.GetLeftTriggerAxis() > .7) {
-    lwheelmotor.Set(.4);
-    rwheelmotor.Set(-.4);
+    lwheelmotor.Set(.6);
+    rwheelmotor.Set(-.6);
   } 
   else if(gamepad.GetRightTriggerAxis() > .7) {
-    lwheelmotor.Set(-1);
-    rwheelmotor.Set(1);
+    lwheelmotor.Set(-.5);
+    rwheelmotor.Set(.5);
     }
   else {conewheelmotor.Set(0);
   lwheelmotor.Set(0);
