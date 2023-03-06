@@ -70,7 +70,7 @@ class Robot : public frc::TimedRobot {
   frc::Timer AutoTimer;
   bool sdfr = false;
   bool autoactive = true;
-  enum autoModeTypes {AutoMobilityCone, AutoChargeCone, AutoMobilityCube, AutoChargeCube, AutoForward, AutoDoNothing,} autoMode;
+  enum autoModeTypes {AutoMobility, AutoChargeDist, AutoMobilityWire, AutoChargeGyro, AutoForward, AutoDoNothing,} autoMode;
   int AutoStage = 0;
   int AutoMini = 0;
   //Digital Inputs
@@ -108,10 +108,10 @@ class Robot : public frc::TimedRobot {
   double tip;
  private:
   frc::SendableChooser<std::string> m_chooser;
-  const std::string kAutoMobilityCone = "Score Cone + Back out";
-  const std::string kAutoMobilityCube = "Score Cube + Back out";
-  const std::string kAutoChargeCone = "Score Cone + Charge";
-  const std::string kAutoChargeCube = "Score Cube + Charge";
+  const std::string kAutoMobility = "Score + Mobility (Normal)";
+  const std::string kAutoMobilityWire = "Score + Mobility (Wirebox)";
+  const std::string kAutoChargeDist = "Score + Charge (Distance)";
+  const std::string kAutoChargeGyro = "Score + Charge (Gyro)";
   const std::string kAutoForward = "Drive Forward";
   const std::string kAutoDoNothing = "Do Nothing";
   std::string m_autoSelected;
