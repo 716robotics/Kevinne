@@ -275,7 +275,7 @@ break;
 
 
 case 6:
-  if (DistanceDrive(-.7, 50, true) == DONE) {
+  if (DistanceDrive(-.7, 45, false) == DONE) {
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
@@ -285,7 +285,7 @@ break;
 
 
 case 7:
-  if (DistanceDrive(-.4, 23, true) == DONE) {
+  if (DistanceDrive(-.4, 23, false) == DONE) {
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
@@ -295,7 +295,7 @@ break;
 
 
 case 8:
-  if (DistanceDrive(-.7, 55, true) == DONE) {
+  if (DistanceDrive(-.7, 65, true) == DONE) {
     drive.TankDrive(0,0,false);
     AutoStage = 9;
   }
@@ -538,7 +538,7 @@ SpeedDrive();
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  Speed = .35;
+  Speed = .33;
   AutoStage = 8;
   sdfr = true;
 }
@@ -546,7 +546,7 @@ break;
 
 
 case 8:
-if(gyro.GetPitch() <= tip + 6){
+if(gyro.GetPitch() <= tip + 6.3){
 SpeedDrive();
 } 
 else{
@@ -555,7 +555,7 @@ else{
   sdfr = true;
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-
+  AutoTimer.Reset();
   AutoStage = 9;
 }
 break;
@@ -564,10 +564,26 @@ break;
 case 9:
 brake.Set(brake.kForward);
 HoldTheLine();
-
+if((double)AutoTimer.Get() >= 1.0){
+  rightdriveEncoder.Reset();
+  leftdriveEncoder.Reset();
+  AutoStage = 10;
+}
 break;
 
+
 case 10:
+if(rightdriveEncoder.Get() < 2){
+rdrive0.Set(.4);
+rdrive1.Set(.4);
+}
+else{
+  drive.TankDrive(0,0,false);
+  AutoStage = 11;}
+break;
+
+
+case 11:
 autoMode = AutoDoNothing;
 
 break;
