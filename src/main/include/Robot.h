@@ -103,9 +103,10 @@ class Robot : public frc::TimedRobot {
   int DistanceDrive(float,float,bool);
   float m_autodistance;
   float lockvalue = 0;
-  bool lockbool = false;
   double Speed; 
   double tip;
+  double truepitch = 0;
+  double startpitch = 0;
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoMobility = "Score + Mobility (Normal)";

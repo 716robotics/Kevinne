@@ -42,9 +42,11 @@ void Robot::RobotPeriodic() {
   frc::SmartDashboard::PutNumber("Speed Controller L", lDrive.Get());
   frc::SmartDashboard::PutNumber("Speed Controller R", rDrive.Get());
   frc::SmartDashboard::PutNumber("Speed: ", Speed);
+  frc::SmartDashboard::PutNumber("True Pitch", truepitch);
   if(LiftSwitch.Get()) {
   lift1Encoder.Reset();
   }
+  truepitch = gyro.GetPitch() - startpitch;
 }
 
 
@@ -65,6 +67,7 @@ void Robot::AutonomousInit() {
   lift1Encoder.SetDistancePerPulse(1./128.);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
+  startpitch = gyro.GetPitch();
   
 }
 
@@ -156,35 +159,14 @@ break;
 
 
 case 6:
-  if (leftdriveEncoder.GetDistance() == -93 && rightdriveEncoder.GetDistance() == 93){
-    Speed = .4;
-    leftdriveEncoder.Reset();
-    rightdriveEncoder.Reset();
+  if (DistanceDrive(-.7, 93, true) == DONE) {
+    drive.TankDrive(0,0,false);
     AutoStage = 7;
-  }
+}
 break;
 
 
 case 7:
- if (leftdriveEncoder.GetDistance() == -23 && rightdriveEncoder.GetDistance() == 23){
-    Speed = .7;
-    leftdriveEncoder.Reset();
-    rightdriveEncoder.Reset();
-    AutoStage = 8;
-  }
-break;
-
-
-case 8:
- if (leftdriveEncoder.GetDistance() == -55 && rightdriveEncoder.GetDistance() == 55){
-    leftdriveEncoder.Reset();
-    rightdriveEncoder.Reset();
-    AutoStage = 9;
-  }
-break;
-
-
-case 9:
 autoMode = AutoDoNothing;
 break;
 
@@ -404,7 +386,7 @@ break;
 
 
 case 7:
-if(leftdriveEncoder.GetDistance() >= -60 && rightdriveEncoder.GetDistance() <= 60){
+if(leftdriveEncoder.GetDistance() >= -61 && rightdriveEncoder.GetDistance() <= 61){
 SpeedDrive();
 } 
 else{
@@ -510,82 +492,75 @@ if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 6;
+    AutoStage = 6;  
     sdfr = true;
+    Speed = .4;
 }
   else {lift1motor.Set(.4);}
 break;
 
 
 case 6:
-  if (DistanceDrive(-.7, 22, false) == DONE) {
-    drive.TankDrive(0,0,false);
-    leftdriveEncoder.Reset();
-    rightdriveEncoder.Reset();
-    Speed = .8;
-    AutoStage = 7;
-    sdfr = true;
-  }
+if(truepitch <= -4){
+AutoStage = 7;
+Speed = .7;
+sdfr = true;
+}
+else{
+  SpeedDrive();
+}
 break;
 
 
 case 7:
-if(tip > gyro.GetPitch())
-{tip = gyro.GetPitch();}
-if(gyro.GetPitch() <= 3 && gyro.GetPitch() >= -26){
-SpeedDrive();
-} 
-else{
-  drive.TankDrive(0,0,false);
-  brake.Set(brake.kOff);
-  Speed = .33;
+if(tip > truepitch){
+tip = truepitch;
+}
+if(truepitch >= tip + 4){ 
   AutoStage = 8;
   sdfr = true;
+  Speed = .32;
+}
+else{
+  SpeedDrive();
 }
 break;
 
 
 case 8:
-if(gyro.GetPitch() <= tip + 6.3){
+if(leftdriveEncoder.GetDistance() >= -6 && rightdriveEncoder.GetDistance() <= 6){
 SpeedDrive();
 } 
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  sdfr = true;
-  leftdriveEncoder.Reset();
-  rightdriveEncoder.Reset();
-  AutoTimer.Reset();
   AutoStage = 9;
+  tip = truepitch;
 }
+/*if(truepitch >= tip + 9){
+  tip = truepitch;
+  AutoStage = 9;
+  sdfr = true;
+}
+else{
+  SpeedDrive();
+} */
 break;
 
 
 case 9:
-brake.Set(brake.kForward);
-HoldTheLine();
-if((double)AutoTimer.Get() >= 1.0){
-  rightdriveEncoder.Reset();
-  leftdriveEncoder.Reset();
+if(truepitch >= tip + 11.75){
+  brake.Set(brake.kForward);
   AutoStage = 10;
+}
+else{
+  SpeedDrive();
 }
 break;
 
 
 case 10:
-if(rightdriveEncoder.Get() < 2){
-rdrive0.Set(.4);
-rdrive1.Set(.4);
-}
-else{
-  drive.TankDrive(0,0,false);
-  AutoStage = 11;}
-break;
-
-
-case 11:
 autoMode = AutoDoNothing;
-
 break;
 }
 }
@@ -633,31 +608,25 @@ void Robot::TeleopPeriodic() {
     sdfr = false;}
   if (rightdrivestick.GetRawButton(4)) Abort();
 
-//Arm Encoder Lock
-if(gamepad.GetLeftStickButton()) {
-lockbool = true;
-lockvalue = lift1Encoder.GetDistance();
-}
-if(gamepad.GetRightStickButton()){
-  lockbool = false;
-}
-if(lockbool == true){
-  if(lift1Encoder.GetDistance() <= lockvalue) {
-    lift1motor.Set(0);
-  }
-  else {lift1motor.Set(.3);}
-}
+
+
 //Arm 1 + Limits
+if(gamepad.GetLeftStickButton()){
+  lockvalue = -75;
+}
+else if(gamepad.GetRightStickButton()){
+lockvalue = -61;
+}
 if(gamepad.GetLeftY() > .3 && LiftSwitch.Get()) {
   lift1motor.Set(0);
 }
 else if(gamepad.GetLeftY() > .3 && !LiftSwitch.Get()) {
   lift1motor.Set(.3);
 }
-else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() <= -75) {
+else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() <= lockvalue) {
   lift1motor.Set(0);
 }
-else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() > -75) {
+else if(gamepad.GetLeftY() < -.3 && lift1Encoder.GetDistance() > lockvalue) {
 lift1motor.Set(gamepad.GetLeftY());
 }
 else{lift1motor.Set(0);}
@@ -671,12 +640,12 @@ else{lift1motor.Set(0);}
   }
   else if (gamepad.GetRightBumper()) {
     conewheelmotor.Set(-1);
-    lwheelmotor.Set(-1);
-    rwheelmotor.Set(1);
+    lwheelmotor.Set(-.5);
+    rwheelmotor.Set(.5);
   }
   else if(gamepad.GetLeftTriggerAxis() > .7) {
-    lwheelmotor.Set(.6);
-    rwheelmotor.Set(-.6);
+    lwheelmotor.Set(.8);
+    rwheelmotor.Set(-.8);
   } 
   else if(gamepad.GetRightTriggerAxis() > .7) {
     lwheelmotor.Set(-.5);
@@ -718,9 +687,12 @@ else{lift1motor.Set(0);}
   }
   else {brake.Set(brake.kOff);}
 
-  }
+  
 
+//Mid Lock
+ 
 
+}
     
 
 
