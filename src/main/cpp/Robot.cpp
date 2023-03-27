@@ -611,10 +611,10 @@ void Robot::TeleopPeriodic() {
 
 
 //Arm 1 + Limits
-if(gamepad.GetLeftStickButton()){
+if(gamepad.GetLeftBumper()){
   lockvalue = -75;
 }
-else if(gamepad.GetRightStickButton()){
+else if(gamepad.GetRightBumper()){
 lockvalue = -61;
 }
 if(gamepad.GetLeftY() > .3 && LiftSwitch.Get()) {
@@ -633,24 +633,16 @@ else{lift1motor.Set(0);}
 
 
 //Cone+Cube Wheels
-  if (gamepad.GetLeftBumper()) {
+  if (gamepad.GetLeftTriggerAxis() > .7) {
     conewheelmotor.Set(1);
     lwheelmotor.Set(.6);
     rwheelmotor.Set(-.6);
   }
-  else if (gamepad.GetRightBumper()) {
+  else if (gamepad.GetRightTriggerAxis() > .7) {
     conewheelmotor.Set(-1);
     lwheelmotor.Set(-.5);
     rwheelmotor.Set(.5);
   }
-  else if(gamepad.GetLeftTriggerAxis() > .7) {
-    lwheelmotor.Set(.8);
-    rwheelmotor.Set(-.8);
-  } 
-  else if(gamepad.GetRightTriggerAxis() > .7) {
-    lwheelmotor.Set(-.5);
-    rwheelmotor.Set(.5);
-    }
   else {conewheelmotor.Set(0);
   lwheelmotor.Set(0);
   rwheelmotor.Set(0);
