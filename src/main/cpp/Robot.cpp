@@ -81,11 +81,20 @@ switch (AutoStage) {
 
 
 case 0:
+if (DistanceDrive(-.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 1;
+}
+break;
+
+
+case 1:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-  AutoStage = 1;
+  AutoStage = 2;
   }
 else {lift1motor.Set(-.7);}
 if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
@@ -95,15 +104,15 @@ AutoTimer.Start();
 break; 
 
 
-case 1:
+case 2:
 if((double)AutoTimer.Get() >= .75){
 lift2.Set(lift2.kOff);
-AutoStage = 2;
+AutoStage = 3;
 }
 break;
 
 
-case 2:
+case 3:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -112,12 +121,12 @@ else {lift1motor.Set(-.7);}
 if (DistanceDrive(.4, 6, false) == DONE) {
     drive.TankDrive(0,0,false);
     AutoTimer.Reset();
-    AutoStage = 3;
+    AutoStage = 4;
 }
 break;
 
 
-case 3:
+case 4:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -128,13 +137,13 @@ if((double)AutoTimer.Get() >= .25){
   if(lift1Encoder.GetDistance() <= -75){
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 4;
+    AutoStage = 5;
   }
 }
 break;
 
 
-case 4:
+case 5:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -142,31 +151,31 @@ else {lift1motor.Set(-.7);}
 
 if (DistanceDrive(-.4, 9, false) == DONE) {
     drive.TankDrive(0,0,false);
-    AutoStage = 5;
+    AutoStage = 6;
 }
 break;
 
-case 5:
+case 6:
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
     Speed = .7;
-    AutoStage = 6;
+    AutoStage = 7;
 }
   else {lift1motor.Set(.4);}
 break;
 
 
-case 6:
+case 7:
   if (DistanceDrive(-.7, 93, true) == DONE) {
     drive.TankDrive(0,0,false);
-    AutoStage = 7;
+    AutoStage = 8;
 }
 break;
 
 
-case 7:
+case 8:
 autoMode = AutoDoNothing;
 break;
 
@@ -180,11 +189,20 @@ switch (AutoStage) {
 
 
 case 0:
+if (DistanceDrive(-.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 1;
+}
+break;  
+
+
+case 1:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-  AutoStage = 1;
+  AutoStage = 2;
   }
 else {lift1motor.Set(-.7);}
 if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
@@ -194,15 +212,15 @@ AutoTimer.Start();
 break; 
 
 
-case 1:
+case 2:
 if((double)AutoTimer.Get() >= .75){
 lift2.Set(lift2.kOff);
-AutoStage = 2;
+AutoStage = 3;
 }
 break;
 
 
-case 2:
+case 3:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -211,12 +229,12 @@ else {lift1motor.Set(-.7);}
 if (DistanceDrive(.4, 6, false) == DONE) {
     drive.TankDrive(0,0,false);
     AutoTimer.Reset();
-    AutoStage = 3;
+    AutoStage = 4;
 }
 break;
 
 
-case 3:
+case 4:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -227,13 +245,13 @@ if((double)AutoTimer.Get() >= .25){
   if(lift1Encoder.GetDistance() <= -75){
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 4;
+    AutoStage = 5;
   }
 }
 break;
 
 
-case 4:
+case 5:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -241,33 +259,23 @@ else {lift1motor.Set(-.7);}
 
 if (DistanceDrive(-.4, 9, false) == DONE) {
     drive.TankDrive(0,0,false);
-    AutoStage = 5;
+    AutoStage = 6;
 }
 break;
 
-case 5:
+case 6:
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 6;
+    AutoStage = 7;
 }
   else {lift1motor.Set(.4);}
 break;
 
 
-case 6:
-  if (DistanceDrive(-.7, 45, false) == DONE) {
-    drive.TankDrive(0,0,false);
-    leftdriveEncoder.Reset();
-    rightdriveEncoder.Reset();
-    AutoStage = 7;
-  }
-break;
-
-
 case 7:
-  if (DistanceDrive(-.4, 23, false) == DONE) {
+  if (DistanceDrive(-.7, 45, false) == DONE) {
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
@@ -277,12 +285,22 @@ break;
 
 
 case 8:
-  if (DistanceDrive(-.7, 65, true) == DONE) {
+  if (DistanceDrive(-.4, 23, false) == DONE) {
     drive.TankDrive(0,0,false);
+    leftdriveEncoder.Reset();
+    rightdriveEncoder.Reset();
     AutoStage = 9;
   }
 break;
+
+
 case 9:
+  if (DistanceDrive(-.7, 65, true) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoStage = 10;
+  }
+break;
+case 10:
 autoMode = AutoDoNothing;
 break;
 
@@ -298,11 +316,20 @@ switch (AutoStage) {
 
 
 case 0:
+if (DistanceDrive(-.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 1;
+}
+break;
+
+
+case 1:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-  AutoStage = 1;
+  AutoStage = 2;
   }
 else {lift1motor.Set(-.7);}
 if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
@@ -312,15 +339,15 @@ AutoTimer.Start();
 break; 
 
 
-case 1:
+case 2:
 if((double)AutoTimer.Get() >= .75){
 lift2.Set(lift2.kOff);
-AutoStage = 2;
+AutoStage = 3;
 }
 break;
 
 
-case 2:
+case 3:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -329,12 +356,12 @@ else {lift1motor.Set(-.7);}
 if (DistanceDrive(.4, 6, false) == DONE) {
     drive.TankDrive(0,0,false);
     AutoTimer.Reset();
-    AutoStage = 3;
+    AutoStage = 4;
 }
 break;
 
 
-case 3:
+case 4:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -345,13 +372,13 @@ if((double)AutoTimer.Get() >= .25){
   if(lift1Encoder.GetDistance() <= -75){
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 4;
+    AutoStage = 5;
   }
 }
 break;
 
 
-case 4:
+case 5:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -359,50 +386,50 @@ else {lift1motor.Set(-.7);}
 
 if (DistanceDrive(-.4, 9, false) == DONE) {
     drive.TankDrive(0,0,false);
-    AutoStage = 5;
+    AutoStage = 6;
 }
 break;
 
-case 5:
+case 6:
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 6;
+    AutoStage = 7;
 }
   else {lift1motor.Set(.4);}
 break;
 
 
-case 6:
+case 7:
   if (DistanceDrive(-.7, 22, false) == DONE) {
     drive.TankDrive(0,0,false);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
     Speed = .7;
-    AutoStage = 7;
+    AutoStage = 8;
   }
 break;
 
 
-case 7:
+case 8:
 if(leftdriveEncoder.GetDistance() >= -61 && rightdriveEncoder.GetDistance() <= 61){
 SpeedDrive();
 } 
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  AutoStage = 8;
+  AutoStage = 9;
 }
 break;
 
 
-case 8:
+case 9:
 brake.Set(brake.kForward);
-AutoStage = 9;
+AutoStage = 10;
 break;
 
-case 9:
+case 10:
 autoMode = AutoDoNothing;
 
 break;
@@ -418,12 +445,21 @@ switch (AutoStage) {
 
 
 case 0:
+if (DistanceDrive(-.4, 6, false) == DONE) {
+    drive.TankDrive(0,0,false);
+    AutoTimer.Reset();
+    AutoStage = 1;
+}
+break;
+
+
+case 1:
 drive.TankDrive(0,0,false);
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   leftdriveEncoder.Reset();
   rightdriveEncoder.Reset();
-  AutoStage = 1;
+  AutoStage = 2;
   }
 else {lift1motor.Set(-.7);}
 if(lift1Encoder.GetDistance() >-68 && lift1Encoder.GetDistance() <-65){
@@ -433,16 +469,16 @@ AutoTimer.Start();
 break; 
 
 
-case 1:
+case 2:
 drive.TankDrive(0,0,false);
 if((double)AutoTimer.Get() >= .75){
 lift2.Set(lift2.kOff);
-AutoStage = 2;
+AutoStage = 3;
 }
 break;
 
 
-case 2:
+case 3:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -451,12 +487,12 @@ else {lift1motor.Set(-.7);}
 if (DistanceDrive(.4, 6, false) == DONE) {
     drive.TankDrive(0,0,false);
     AutoTimer.Reset();
-    AutoStage = 3;
+    AutoStage = 4;
 }
 break;
 
 
-case 3:
+case 4:
 drive.TankDrive(0,0,false);
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
@@ -468,13 +504,13 @@ if((double)AutoTimer.Get() >= .25){
   if(lift1Encoder.GetDistance() <= -75){
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 4;
+    AutoStage = 5;
   }
 }
 break;
 
 
-case 4:
+case 5:
 if(lift1Encoder.GetDistance() <= -75) {
   lift1motor.Set(0);
   }
@@ -482,17 +518,17 @@ else {lift1motor.Set(-.7);}
 
 if (DistanceDrive(-.4, 9, false) == DONE) {
     drive.TankDrive(0,0,false);
-    AutoStage = 5;
+    AutoStage = 6;
 }
 break;
 
-case 5:
+case 6:
 drive.TankDrive(0,0,false);
 if(LiftSwitch.Get() == true) {
     lift1motor.Set(0);
     leftdriveEncoder.Reset();
     rightdriveEncoder.Reset();
-    AutoStage = 6;  
+    AutoStage = 7;  
     sdfr = true;
     Speed = .4;
 }
@@ -500,9 +536,9 @@ if(LiftSwitch.Get() == true) {
 break;
 
 
-case 6:
+case 7:
 if(truepitch <= -4){
-AutoStage = 7;
+AutoStage = 8;
 Speed = .7;
 sdfr = true;
 }
@@ -512,12 +548,12 @@ else{
 break;
 
 
-case 7:
+case 8:
 if(tip > truepitch){
 tip = truepitch;
 }
 if(truepitch >= tip + 4){ 
-  AutoStage = 8;
+  AutoStage = 9;
   sdfr = true;
   Speed = .32;
 }
@@ -527,39 +563,31 @@ else{
 break;
 
 
-case 8:
+case 9:
 if(leftdriveEncoder.GetDistance() >= -6 && rightdriveEncoder.GetDistance() <= 6){
 SpeedDrive();
 } 
 else{
   drive.TankDrive(0,0,false);
   brake.Set(brake.kOff);
-  AutoStage = 9;
-  tip = truepitch;
-}
-/*if(truepitch >= tip + 9){
-  tip = truepitch;
-  AutoStage = 9;
-  sdfr = true;
-}
-else{
-  SpeedDrive();
-} */
-break;
-
-
-case 9:
-if(truepitch >= tip + 11.75){
-  brake.Set(brake.kForward);
   AutoStage = 10;
-}
-else{
-  SpeedDrive();
+  tip = truepitch;
 }
 break;
 
 
 case 10:
+if(truepitch >= tip + 11.75){
+  brake.Set(brake.kForward);
+  AutoStage = 11;
+}
+else{
+  SpeedDrive();
+}
+break;
+
+
+case 11:
 autoMode = AutoDoNothing;
 break;
 }
