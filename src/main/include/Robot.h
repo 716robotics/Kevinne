@@ -102,7 +102,7 @@ class Robot : public frc::TimedRobot {
   bool AutoBalance();
   int DistanceDrive(float,float,bool);
   float m_autodistance;
-  float lockvalue = 0;
+  float lockvalue = -75;
   double Speed; 
   double tip;
   double truepitch = 0;
